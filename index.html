@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="DemosMaths1 — comprendre, mémoriser et visualiser les mathématiques.">
+  <title>DemosMaths1 — Maîtriser les maths</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="DemosMaths1 accueil">
+        <span class="brand-mark">∑</span>
+        <span><strong>DemosMaths</strong><small>LE LABORATOIRE DES MATHS</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <button class="nav-item active" data-view="home"><span>⌂</span> Vue d'ensemble</button>
+        <button class="nav-item" data-view="learn"><span>▤</span> Apprendre</button>
+        <button class="nav-item" data-view="cards"><span>◫</span> Flashcards</button>
+        <button class="nav-item" data-view="visuals"><span>⌁</span> Visualisations</button>
+        <button class="nav-item" data-view="reference"><span>∴</span> Référentiel</button>
+        <button class="nav-item" data-view="progress"><span>◔</span> Progression</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note"><span class="pulse"></span><div><b>Ton espace de travail</b><small>Progression sauvegardée sur cet appareil</small></div></div>
+        <small class="version">DEMOSMATHS1 · VERSION 2.0</small>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Ouvrir le menu">☰</button>
+        <div class="breadcrumb">ESPACE MATHÉMATIQUES <span>/</span> <b id="currentSection">VUE D'ENSEMBLE</b></div>
+        <div class="top-actions"><span class="today-label" id="todayLabel"></span><div class="avatar">∑</div></div>
+      </header>
+
+      <section class="view active" id="view-home">
+        <div class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow"><i></i> APPRENDRE AVEC RIGUEUR</span>
+            <h1>Les maths ne se<br><em>mémorisent pas.</em><br>Elles se comprennent.</h1>
+            <p>Un espace pour construire des raisonnements solides, retenir l'essentiel et visualiser les concepts abstraits.</p>
+            <button class="primary-btn" data-goto="learn">Reprendre mon apprentissage <span>→</span></button>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+            <div class="math-symbol sigma">∑</div><div class="math-symbol integral">∫</div>
+            <div class="math-symbol pi">π</div><div class="math-symbol infinity">∞</div>
+            <div class="art-caption">THINK · PROVE · UNDERSTAND</div>
+          </div>
+        </div>
+
+        <div class="section-heading"><div><span class="eyebrow">TON ESPACE</span><h2>Vue d'ensemble</h2></div><span class="muted">Un pas après l'autre.</span></div>
+        <div class="stats-grid">
+          <article class="stat-card"><span class="stat-icon blue">▤</span><span class="stat-label">NOTIONS DISPONIBLES</span><strong id="statTopics">12</strong><small>Analyse et algèbre</small></article>
+          <article class="stat-card"><span class="stat-icon violet">◫</span><span class="stat-label">CARTES À RÉVISER</span><strong id="statCards">24</strong><small>Définitions et théorèmes</small></article>
+          <article class="stat-card"><span class="stat-icon green">✓</span><span class="stat-label">NOTIONS MAÎTRISÉES</span><strong id="statMastered">0</strong><small id="masteredSub">À construire progressivement</small></article>
+          <article class="stat-card"><span class="stat-icon amber">◷</span><span class="stat-label">SÉANCES EFFECTUÉES</span><strong id="statSessions">0</strong><small>Sur cet appareil</small></article>
+        </div>
+
+        <div class="home-grid">
+          <article class="panel continue-panel">
+            <div class="panel-title"><div><span class="eyebrow">POUR PROGRESSER</span><h3>Reprendre là où tu veux</h3></div><span class="tag">À TON RYTHME</span></div>
+            <div class="continue-row"><div class="subject-icon">ƒ</div><div class="continue-info"><b>Analyse</b><small>Limites, continuité, dérivation</small><div class="mini-progress"><i id="analysisBar"></i></div></div><button class="circle-arrow" data-goto="learn" aria-label="Ouvrir l'analyse">↗</button></div>
+            <div class="continue-row"><div class="subject-icon purple">A</div><div class="continue-info"><b>Algèbre</b><small>Applications linéaires, matrices, espaces vectoriels</small><div class="mini-progress"><i id="algebraBar"></i></div></div><button class="circle-arrow" data-goto="learn" aria-label="Ouvrir l'algèbre">↗</button></div>
+          </article>
+          <article class="panel quote-panel"><span class="quote-mark">“</span><blockquote>Une démonstration réussie est une idée juste, rendue inévitable par la rigueur.</blockquote><div class="quote-line"></div><small>LE BON RÉFLEXE</small></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-learn">
+        <div class="page-intro"><span class="eyebrow">COURS & NOTIONS</span><h1>Apprendre avec méthode.</h1><p>Choisis un thème, comprends la notion, puis teste-toi avec les questions associées.</p></div>
+        <div class="toolbar"><div class="filter-group" id="levelFilters"><button class="filter active" data-level="Tous">Tout</button><button class="filter" data-level="L1">L1</button><button class="filter" data-level="L2">L2</button><button class="filter" data-level="MP">MP</button></div><label class="searchbox">⌕ <input id="topicSearch" type="search" placeholder="Rechercher une notion…"></label></div>
+        <div class="topic-grid" id="topicGrid"></div>
+      </section>
+
+      <section class="view" id="view-topic">
+        <button class="back-link" data-goto="learn">← Retour aux notions</button>
+        <div id="topicDetail"></div>
+      </section>
+
+      <section class="view" id="view-cards">
+        <div class="page-intro"><span class="eyebrow">MÉMORISATION ACTIVE</span><h1>Flashcards.</h1><p>Essaie de retrouver la réponse avant de retourner la carte. La mémoire se construit par le rappel actif.</p></div>
+        <div class="card-controls"><div class="filter-group" id="cardFilters"><button class="filter active" data-cat="Toutes">Toutes</button><button class="filter" data-cat="Analyse">Analyse</button><button class="filter" data-cat="Algèbre">Algèbre</button></div><span class="muted" id="cardCounter"></span></div>
+        <div class="flashcard-wrap">
+          <button class="flashcard" id="flashcard" aria-label="Retourner la flashcard">
+            <span class="card-top"><span id="flashCategory">ANALYSE · L1</span><span id="flashNumber">01 / 24</span></span>
+            <span class="card-center"><small id="flashSide">QUESTION</small><strong id="flashQuestion">Qu'est-ce qu'une suite convergente ?</strong></span>
+            <span class="card-bottom"><span>CLIQUER POUR RETOURNER</span><span class="flip-icon">↻</span></span>
+          </button>
+          <div class="flash-actions"><button class="secondary-btn" id="prevCard">← Précédente</button><button class="primary-btn" id="flipCard">Voir la réponse <span>↻</span></button><button class="secondary-btn" id="nextCard">Suivante →</button></div>
+          <div class="mastery-actions" id="masteryActions" hidden><span>Tu connaissais cette notion ?</span><button class="know-btn" id="markKnown">Oui, maîtrisée ✓</button><button class="review-btn" id="markReview">À revoir</button></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-visuals">
+        <div class="page-intro"><span class="eyebrow">MATHÉMATIQUES EN MOUVEMENT</span><h1>Voir pour comprendre.</h1><p>Manipule les paramètres et observe ce qui change. Chaque visualisation illustre une idée mathématique précise.</p></div>
+        <div class="visual-library-intro"><strong>12 expériences interactives</strong><span>Choisis une notion, manipule les paramètres et observe les conséquences.</span></div>
+        <div class="visual-library-intro"><strong>18 expériences interactives</strong><span>Les expériences sont classées par niveau ; chaque réglage met à jour la représentation.</span></div>
+        <div class="visual-level"><b>L1 · Fondamentaux</b><div class="visual-tabs"><button class="visual-tab active" data-visual="convergence">Suites</button><button class="visual-tab" data-visual="limit">Limites</button><button class="visual-tab" data-visual="continuity">Continuité</button><button class="visual-tab" data-visual="derivative">Dérivée</button><button class="visual-tab" data-visual="ivt">TVI</button><button class="visual-tab" data-visual="integral">Intégrales</button><button class="visual-tab" data-visual="trig">Cercle trigo</button><button class="visual-tab" data-visual="injectivity">Injectivité</button><button class="visual-tab" data-visual="surjectivity">Surjectivité</button><button class="visual-tab" data-visual="linear">Transformations</button><button class="visual-tab" data-visual="basis">Bases</button><button class="visual-tab" data-visual="determinant">Déterminant</button><button class="visual-tab" data-visual="directsum">Somme directe</button></div></div>
+        <div class="visual-level"><b>L2 · Approfondissement</b><div class="visual-tabs"><button class="visual-tab" data-visual="schmidt">Gram-Schmidt (dim. 2)</button><button class="visual-tab" data-visual="fourier">Fourier</button><button class="visual-tab" data-visual="taylor">Développements limités</button><button class="visual-tab" data-visual="surface">Fonctions de 2 variables</button><button class="visual-tab" data-visual="eigen">Valeurs propres</button></div></div>
+        <div class="visual-layout">
+          <article class="panel visual-panel"><div class="panel-title"><div><span class="eyebrow" id="visualEyebrow">ANALYSE · SUITES</span><h2 id="visualTitle">Convergence d'une suite</h2></div><span class="live-tag"><i></i> INTERACTIF</span></div>
+            <div class="canvas-wrap"><canvas id="mathCanvas" width="900" height="480" aria-label="Visualisation mathématique interactive"></canvas></div>
+            <div class="visual-caption" id="visualCaption">Les termes de la suite se rapprochent de la limite L.</div>
+          </article>
+          <aside class="panel control-panel"><span class="eyebrow">PARAMÈTRES</span><h3 id="controlTitle">Faire varier ε</h3><div id="visualControls"></div><div class="insight-box"><b>À retenir</b><p id="visualInsight">La convergence signifie que les termes finissent par rester aussi proches que l'on veut de leur limite.</p></div></aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-reference">
+        <div class="page-intro"><span class="eyebrow">BOÎTE À OUTILS</span><h1>Référentiel mathématique.</h1><p>Des définitions, propriétés et théorèmes à retrouver rapidement. Une base de travail à compléter au fil du cursus.</p></div>
+        <div class="toolbar"><div class="filter-group" id="refFilters"><button class="filter active" data-reflevel="Tous">Tout</button><button class="filter" data-reflevel="L1">L1</button><button class="filter" data-reflevel="L2">L2</button><button class="filter" data-reflevel="MP">MP</button></div><label class="searchbox">⌕ <input id="refSearch" type="search" placeholder="Définition, théorème…"></label></div>
+        <div class="reference-list" id="referenceList"></div>
+      </section>
+
+      <section class="view" id="view-progress">
+        <div class="page-intro"><span class="eyebrow">RÉGULARITÉ & MAÎTRISE</span><h1>Ta progression.</h1><p>Observe ton avancée. L'objectif n'est pas d'aller vite, mais de construire des connaissances durables.</p></div>
+        <div class="progress-overview">
+          <article class="panel progress-main"><span class="eyebrow">NOTIONS MAÎTRISÉES</span><div class="progress-number"><strong id="progressPercent">0%</strong><span id="progressCount">0 sur 12 notions</span></div><div class="big-progress"><i id="bigProgressBar"></i></div><p>Marque une notion comme maîtrisée après avoir su l'expliquer et résoudre un exercice sans aide.</p></article>
+          <article class="panel sessions-main"><span class="eyebrow">ACTIVITÉ</span><strong id="sessionCount">0</strong><span>séance(s) enregistrée(s)</span><button class="secondary-btn" id="addSession">+ Enregistrer une séance</button></article>
+        </div>
+        <div class="section-heading"><div><span class="eyebrow">SUIVI PAR NOTION</span><h2>Ton tableau de bord</h2></div></div>
+        <div class="progress-list" id="progressList"></div>
+        <button class="reset-link" id="resetProgress">Réinitialiser la progression locale</button>
+      </section>
+
+      <footer class="footer"><span>∑ DEMOSMATHS1</span><span>Comprendre · Démontrer · Maîtriser</span></footer>
+    </main>
+  </div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
