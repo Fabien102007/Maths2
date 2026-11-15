@@ -22,3 +22,12 @@
 .visual-play{margin-top:14px;width:100%;justify-content:center}
 
 .brand-mark.logo-image{object-fit:cover;padding:0;background:none;border-radius:13px}
+
+/* Les visualisations sont intégrées directement aux fiches de cours. */
+#view-visuals{display:none!important}
+.topic-visual-host{margin:20px 0 24px;min-width:0}
+.topic-visual-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 12px;padding:13px 15px;background:#14243a;border:1px solid #2b4260;border-radius:12px}
+.visual-picker-label{display:flex;align-items:center;gap:10px;color:#9fb2ca;font-size:11px}
+.visual-picker-label select{max-width:100%;background:#101d2d;border:1px solid #344b67;color:#d6e3f4;border-radius:8px;padding:9px 12px;font-size:11px}
+.topic-visual-host .visual-layout{grid-template-columns:minmax(0,1.7fr) minmax(230px,.8fr)}
+@media(max-width:760px){.topic-visual-host .visual-layout{grid-template-columns:1fr}.topic-visual-heading{align-items:flex-start}.visual-picker-label{width:100%;justify-content:space-between}.visual-picker-label select{flex:1;min-width:0}}
