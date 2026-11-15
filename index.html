@@ -7,16 +7,16 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="icons/math-logo.svg">
   <link rel="apple-touch-icon" href="icons/math-logo.svg">
-  <meta name="description" content="DemosMaths1 — comprendre, mémoriser et visualiser les mathématiques.">
-  <title>DemosMaths1 — Maîtriser les maths</title>
+  <meta name="description" content="Maths2 — comprendre, mémoriser et visualiser les mathématiques.">
+  <title>Maths2 — Maîtriser les maths</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#" aria-label="DemosMaths1 accueil">
+      <a class="brand" href="#" aria-label="Maths2 accueil">
         <img class="brand-mark logo-image" src="icons/math-logo.svg" alt="Logo Maths2">
-        <span><strong>DemosMaths</strong><small>LE LABORATOIRE DES MATHS</small></span>
+        <span><strong>Maths2</strong><small>LE LABORATOIRE DES MATHS</small></span>
       </a>
       <nav class="main-nav" aria-label="Navigation principale">
         <button class="nav-item active" data-view="home"><span>⌂</span> Vue d'ensemble</button>
@@ -27,7 +27,7 @@
       </nav>
       <div class="sidebar-bottom">
         <div class="sidebar-note"><span class="pulse"></span><div><b>Ton espace de travail</b><small>Progression sauvegardée sur cet appareil</small></div></div>
-        <small class="version">DEMOSMATHS1 · VERSION 2.0</small>
+        <small class="version">MATHS2 · VERSION 2.1</small>
       </div>
     </aside>
 
@@ -85,7 +85,7 @@
 
       <section class="view" id="view-cards">
         <div class="page-intro"><span class="eyebrow">MÉMORISATION ACTIVE</span><h1>Flashcards.</h1><p>Essaie de retrouver la réponse avant de retourner la carte. La mémoire se construit par le rappel actif.</p></div>
-        <div class="card-controls"><div class="filter-group" id="cardFilters"><button class="filter active" data-cat="Toutes">Toutes</button><button class="filter" data-cat="Analyse">Analyse</button><button class="filter" data-cat="Algèbre">Algèbre</button></div><span class="muted" id="cardCounter"></span></div>
+        <div class="card-controls"><div class="filter-group" id="cardFilters"><button class="filter active" data-cat="Toutes">Toutes</button><button class="filter" data-cat="Analyse">Analyse</button><button class="filter" data-cat="Algèbre">Algèbre</button><button class="filter" id="dueOnly">Révisions à faire</button></div><span class="muted" id="cardCounter"></span></div>
         <div class="flashcard-wrap">
           <button class="flashcard" id="flashcard" aria-label="Retourner la flashcard">
             <span class="card-top"><span id="flashCategory">ANALYSE · L1</span><span id="flashNumber">01 / 24</span></span>
@@ -93,7 +93,7 @@
             <span class="card-bottom"><span>CLIQUER POUR RETOURNER</span><span class="flip-icon">↻</span></span>
           </button>
           <div class="flash-actions"><button class="secondary-btn" id="prevCard">← Précédente</button><button class="primary-btn" id="flipCard">Voir la réponse <span>↻</span></button><button class="secondary-btn" id="nextCard">Suivante →</button></div>
-          <div class="mastery-actions" id="masteryActions" hidden><span>Tu connaissais cette notion ?</span><button class="know-btn" id="markKnown">Oui, maîtrisée ✓</button><button class="review-btn" id="markReview">À revoir</button></div>
+          <div class="mastery-actions" id="masteryActions" hidden><span>Évalue ton rappel :</span><button class="review-btn" id="markReview">À revoir · 1 j</button><button class="review-btn" id="markDifficult">Difficile · 2 j</button><button class="know-btn" id="markKnown">Bien · 4/7/14 j</button><button class="know-btn" id="markEasy">Facile · intervalle ×2</button></div>
         </div>
       </section>
 
@@ -124,12 +124,12 @@
           <article class="panel progress-main"><span class="eyebrow">NOTIONS MAÎTRISÉES</span><div class="progress-number"><strong id="progressPercent">0%</strong><span id="progressCount">0 sur 12 notions</span></div><div class="big-progress"><i id="bigProgressBar"></i></div><p>Marque une notion comme maîtrisée après avoir su l'expliquer et résoudre un exercice sans aide.</p></article>
           <article class="panel sessions-main"><span class="eyebrow">ACTIVITÉ</span><strong id="sessionCount">0</strong><span>séance(s) enregistrée(s)</span><button class="secondary-btn" id="addSession">+ Enregistrer une séance</button></article>
         </div>
-        <div class="section-heading"><div><span class="eyebrow">SUIVI PAR NOTION</span><h2>Ton tableau de bord</h2></div></div>
+        <div class="section-heading"><div><span class="eyebrow">MÉMORISATION ACTIVE</span><h2>Révisions espacées</h2></div></div><div class="review-summary" id="reviewSummary"></div><div class="section-heading"><div><span class="eyebrow">SUIVI PAR NOTION</span><h2>Ton tableau de bord</h2></div></div>
         <div class="progress-list" id="progressList"></div>
         <button class="reset-link" id="resetProgress">Réinitialiser la progression locale</button>
       </section>
 
-      <footer class="footer"><span>∑ DEMOSMATHS1</span><span>Comprendre · Démontrer · Maîtriser</span></footer>
+      <footer class="footer"><span>∑ MATHS2</span><span>Comprendre · Démontrer · Maîtriser</span></footer>
     </main>
   </div>
   <script>
@@ -150,7 +150,7 @@
       window.scrollTo({top:0,behavior:"auto"});
     }, true);
   </script>
-  <script src="data.js?v=20261115-3"></script>
-  <script src="app.js?v=20261115-3"></script>
+  <script src="data.js?v=20261115-4"></script>
+  <script src="app.js?v=20261115-4"></script>
 </body>
 </html>
