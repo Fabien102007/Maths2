@@ -20,4 +20,5 @@
 [hidden]{display:none!important}
 @media(max-width:700px){.visual-level{padding:12px}.visual-tabs{gap:6px}.visual-tab{font-size:.76rem;padding:8px 10px}.exercise-panel{padding:18px}}
 .visual-play{margin-top:14px;width:100%;justify-content:center}
-\n.brand-mark.logo-image{object-fit:cover;padding:0;background:none;border-radius:13px}\n
+
+.brand-mark.logo-image{object-fit:cover;padding:0;background:none;border-radius:13px}
