@@ -10,10 +10,15 @@ try {
   state = { mastered: [], sessions: 0, seen: [] };
 }
 if (!state || !Array.isArray(state.mastered) || !Array.isArray(state.seen) || !Number.isFinite(state.sessions)) {
-  state = { mastered: [], sessions: 0, seen: [] };
+  state = { mastered: [], sessions: 0, seen: [], reviews: {} };
 }
-let activeLevel="Tous", activeRefLevel="Tous", activeCategory="Toutes", currentCard=0, flipped=false, activeVisual="convergence", visualTimer=null;
+if (!state.reviews || typeof state.reviews !== "object") state.reviews = {};
+let activeLevel="Tous", activeRefLevel="Tous", activeCategory="Toutes", currentCard=0, flipped=false, dueOnly=false, activeVisual="convergence", visualTimer=null;
 function save(){localStorage.setItem(storeKey,JSON.stringify(state));updateStats();}
+function reviewInfo(card){return state.reviews[card.q]||{due:0,interval:0,repetitions:0};}
+function dueCards(cards=MATH_CARDS){const now=Date.now();return cards.filter(card=>!reviewInfo(card).due||reviewInfo(card).due<=now);}
+function scheduleCard(card,rating){const old=reviewInfo(card);const days=rating==="again"?1:rating==="difficult"?Math.max(2,Math.round((old.interval||1)*1.5)):rating==="good"?[1,3,7,14,30][Math.min(old.repetitions||0,4)]:Math.max(7,Math.round((old.interval||3)*2));state.reviews[card.q]={interval:days,repetitions:rating==="again"?0:(old.repetitions||0)+1,due:Date.now()+days*86400000,last:Date.now(),rating};save();}
+function dueCount(){return dueCards().length;}
 function updateStats(){
  const total=MATH_TOPICS.length, done=state.mastered.length;
  $("#statTopics").textContent=total;$("#statCards").textContent=MATH_CARDS.length;$("#statMastered").textContent=done;$("#statSessions").textContent=state.sessions;
@@ -57,9 +62,24 @@ const EXERCISES={
  "ev-normes":{q:"Quelle propriété de la norme permet de majorer ‖x+y‖ ?",a:"L'inégalité triangulaire : ‖x+y‖≤‖x‖+‖y‖."},
  legendre:{q:"Pourquoi P₀(x)=1 et P₁(x)=x sont-ils orthogonaux sur [−1,1] ?",a:"Leur produit scalaire vaut ∫₋₁¹1·x dx=0, car x est impaire et l'intervalle est symétrique."}
 };
+const QUIZZES={
+"suite-limite":{q:"Dans la définition de uₙ → ℓ, le rang N dépend de…",options:["ε, mais pas de n","n, mais pas de ε","ni de ε ni de n"],correct:0,why:"On fixe ε, puis on choisit N(ε). Ensuite l'inégalité doit être vraie pour tout n ≥ N."},
+continuite:{q:"Quelle condition caractérise la continuité de f en a ?",options:["La limite en a existe et vaut f(a)","f est dérivable en a","f(a)=0"],correct:0,why:"La continuité en a équivaut à lim(x→a) f(x)=f(a)."},
+derivee:{q:"Que représente géométriquement f′(a) ?",options:["L'ordonnée à l'origine","La pente de la tangente en a","L'aire sous la courbe"],correct:1,why:"Le nombre dérivé est la limite du taux d'accroissement, donc la pente de la tangente."},
+"theoreme-valeurs-intermediaires":{q:"Le TVI garantit…",options:["Une solution unique","Au moins une solution pour une valeur intermédiaire","Que f est strictement croissante"],correct:1,why:"La continuité garantit l'existence d'un antécédent, pas son unicité."},
+integrale:{q:"Si f est négative sur [a,b], alors son intégrale est…",options:["Négative ou nulle","Toujours positive","Nécessairement nulle"],correct:0,why:"L'intégrale est une aire algébrique : les contributions sous l'axe sont négatives."},
+"espaces-vectoriels":{q:"Pour montrer qu'une partie non vide F est un sous-espace, on vérifie…",options:["La stabilité par combinaison linéaire","Que tous ses vecteurs sont unitaires","Qu'elle est bornée"],correct:0,why:"La stabilité par λu+μv suffit avec la non-vacuité."},
+"familles-liberes":{q:"Une famille est libre si…",options:["Elle contient le vecteur nul","La seule combinaison linéaire nulle est triviale","Elle engendre toujours E"],correct:1,why:"La relation λ₁e₁+…+λₚeₚ=0 impose tous les coefficients nuls."},
+"applications-lineaires":{q:"Toute application linéaire f vérifie…",options:["f(0)=0","f(0)=1","f est injective"],correct:0,why:"La linéarité impose f(0)=0, mais pas nécessairement l'injectivité."},
+diagonalisation:{q:"Une matrice est diagonalisable si…",options:["Elle est toujours inversible","Elle possède une base de vecteurs propres","Son déterminant vaut 1"],correct:1,why:"Il existe une base dans laquelle sa matrice est diagonale."},
+determinant:{q:"En dimension 2, |det(A)| représente…",options:["Le facteur de multiplication des aires","La longueur de chaque vecteur","La trace de A"],correct:0,why:"L'aire du parallélogramme image du carré unité vaut |det(A)|."},
+"developpements-limites":{q:"Un développement limité en 0 décrit principalement…",options:["Le comportement local près de 0","La fonction pour tout réel","Uniquement les valeurs en +∞"],correct:0,why:"Le reste o(xⁿ) est défini lorsque x tend vers 0."},
+"somme-directe":{q:"Pour avoir E=F⊕G, il faut notamment…",options:["F=G","F∩G={0} et F+G=E","F et G de même dimension"],correct:1,why:"L'intersection triviale assure l'unicité et F+G=E l'existence."}
+};
+
 function showTopic(id){
  const t=MATH_TOPICS.find(x=>x.id===id);if(!t)return;
- $("#topicDetail").innerHTML=`<div class="detail-header"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h1>${t.title}</h1><p>${t.desc}</p></div><div class="detail-content"><article class="panel detail-block"><h3>Définition essentielle</h3><p>${t.definition}</p><div class="math-formula">${t.formula}</div><div id="topicVisualHost" class="topic-visual-host"></div><h3>Comment raisonner ?</h3><p>${t.proof}</p><h3>Points de vigilance</h3><ul>${t.points.map(p=>`<li>${p}</li>`).join("")}</ul></article><aside class="panel detail-block"><h3>Exemple</h3><p>${t.example}</p><div class="callout"><b>Conseil de méthode</b><br>Essaie de reformuler la définition sans regarder, puis démontre un résultat simple qui l'utilise.</div><button class="primary-btn" id="topicCards" style="margin-top:18px;width:100%">Réviser avec les cartes →</button><button class="secondary-btn" id="toggleMastery" style="margin-top:9px;width:100%">${state.mastered.includes(t.id)?"Retirer des notions maîtrisées":"Marquer comme maîtrisée ✓"}</button></aside></div><article class="panel exercise-panel"><span class="eyebrow">PASSER À LA PRATIQUE</span><h2>Vérifie que tu as compris.</h2><p class="muted">Réponds sans regarder le cours, puis affiche la correction détaillée.</p><div class="exercise-question"><b>${(EXERCISES[t.id]||{q:"Reformule la définition avec tes propres mots et donne un exemple."}).q}</b></div><button class="secondary-btn" id="showExercise">Afficher un indice / la correction</button><div class="exercise-answer" id="exerciseAnswer" hidden>${(EXERCISES[t.id]||{a:"Une bonne réponse doit reprendre les hypothèses, la définition précise et un exemple pertinent."}).a}</div></article>`;
+ $("#topicDetail").innerHTML=`<div class="detail-header"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h1>${t.title}</h1><p>${t.desc}</p></div><div class="detail-content"><article class="panel detail-block"><h3>Définition essentielle</h3><p>${t.definition}</p><div class="math-formula">${t.formula}</div><div id="topicVisualHost" class="topic-visual-host"></div><h3>Comment raisonner ?</h3><p>${t.proof}</p><h3>Points de vigilance</h3><ul>${t.points.map(p=>`<li>${p}</li>`).join("")}</ul></article><aside class="panel detail-block"><h3>Exemple</h3><p>${t.example}</p><div class="callout"><b>Conseil de méthode</b><br>Essaie de reformuler la définition sans regarder, puis démontre un résultat simple qui l'utilise.</div><button class="primary-btn" id="topicCards" style="margin-top:18px;width:100%">Réviser avec les cartes →</button><button class="secondary-btn" id="toggleMastery" style="margin-top:9px;width:100%">${state.mastered.includes(t.id)?"Retirer des notions maîtrisées":"Marquer comme maîtrisée ✓"}</button></aside></div><article class="panel exercise-panel"><span class="eyebrow">PASSER À LA PRATIQUE</span><h2>Vérifie que tu as compris.</h2><p class="muted">Réponds sans regarder le cours, puis affiche la correction détaillée.</p><div class="exercise-question"><b>${(EXERCISES[t.id]||{q:"Reformule la définition avec tes propres mots et donne un exemple."}).q}</b></div><button class="secondary-btn" id="showHint">Voir un indice</button><div class="exercise-hint" id="exerciseHint" hidden>Repars de la définition et identifie les hypothèses à utiliser avant de chercher le résultat.</div><button class="secondary-btn" id="showExercise" style="margin-top:9px">Afficher la correction détaillée</button><div class="exercise-answer" id="exerciseAnswer" hidden>${(EXERCISES[t.id]||{a:"Une bonne réponse doit reprendre les hypothèses, la définition précise et un exemple pertinent."}).a}</div></article><article class="panel exercise-panel quiz-panel"><span class="eyebrow">TEST RAPIDE</span><h2>Vérifie ton raisonnement.</h2><div id="topicQuiz"></div></article>`;
  const visualMap={
   "suite-limite":["convergence"],
   "continuite":["continuity","limit"],
@@ -87,30 +107,34 @@ function showTopic(id){
   setVisual(availableVisuals[0]);
   $("#topicVisualPicker").addEventListener("change",e=>setVisual(e.target.value));
  }
- $("#topicCards").addEventListener("click",()=>{activeCategory=t.category;currentCard=MATH_CARDS.findIndex(c=>c.cat===t.category);if(currentCard<0)currentCard=0;go("cards");renderCard()});
+ $("#showHint").addEventListener("click",()=>{$("#exerciseHint").hidden=!$("#exerciseHint").hidden;});$("#showExercise").addEventListener("click",()=>{$("#exerciseAnswer").hidden=!$("#exerciseAnswer").hidden;});const quiz=QUIZZES[t.id];$("#topicQuiz").innerHTML=quiz?`<p class="quiz-question">${quiz.q}</p><div class="quiz-options">${quiz.options.map((option,i)=>`<button class="quiz-option" data-choice="${i}">${option}</button>`).join("")}</div><p class="quiz-feedback" id="quizFeedback" hidden></p>`:'<p class="muted">Pour cette notion, entraîne-toi avec la question guidée ci-dessus et vérifie chaque hypothèse de la définition.</p>';$("#topicQuiz [data-choice]").forEach(button=>button.addEventListener("click",()=>{const choice=Number(button.dataset.choice);$("#topicQuiz [data-choice]").forEach((b,i)=>{b.disabled=true;b.classList.toggle("correct",i===quiz.correct);b.classList.toggle("incorrect",i===choice&&choice!==quiz.correct)});const feedback=$("#quizFeedback");feedback.hidden=false;feedback.textContent=(choice===quiz.correct?"Bonne réponse. ":"Pas tout à fait. ")+quiz.why;}));$("#topicCards").addEventListener("click",()=>{activeCategory=t.category;currentCard=MATH_CARDS.findIndex(c=>c.cat===t.category);if(currentCard<0)currentCard=0;go("cards");renderCard()});
  $("#toggleMastery").addEventListener("click",()=>{if(state.mastered.includes(t.id))state.mastered=state.mastered.filter(x=>x!==t.id);else state.mastered.push(t.id);save();showTopic(id);renderTopics()});
  go("topic");
 }
 
 function renderCard(){
- let cards=MATH_CARDS.map((c,i)=>({...c,original:i})).filter(c=>activeCategory==="Toutes"||c.cat===activeCategory);
- if(!cards.length)return;
- currentCard=Math.max(0,Math.min(currentCard,cards.length-1));const c=cards[currentCard];flipped=false;
+ const all=MATH_CARDS.filter(c=>activeCategory==="Toutes"||c.cat===activeCategory),cards=dueOnly?dueCards(all):all;
+ if(!cards.length){$("#flashCategory").textContent="RÉVISIONS";$("#flashNumber").textContent="—";$("#flashSide").textContent="BIEN JOUÉ";$("#flashQuestion").textContent=dueOnly?"Aucune carte à revoir pour le moment.":"Aucune carte dans cette sélection.";$("#cardCounter").textContent=dueOnly?"Toutes les cartes sont à jour.":"Sélection vide.";$("#masteryActions").hidden=true;$("#flipCard").disabled=true;return;}
+ $("#flipCard").disabled=false;currentCard=Math.max(0,Math.min(currentCard,cards.length-1));const c=cards[currentCard];flipped=false;
  $("#flashcard").classList.remove("flipped");$("#flashCategory").textContent=`${c.cat.toUpperCase()} · ${c.level}`;$("#flashNumber").textContent=`${String(currentCard+1).padStart(2,"0")} / ${cards.length}`;
- $("#flashSide").textContent="QUESTION";$("#flashQuestion").textContent=c.q;$("#cardCounter").textContent=`${cards.length} cartes dans cette sélection`;
+ $("#flashSide").textContent="QUESTION";$("#flashQuestion").textContent=c.q;
+ const info=reviewInfo(c),due=info.due?new Date(info.due).toLocaleDateString("fr-FR"):"À découvrir";
+ $("#cardCounter").textContent=`${cards.length} cartes · ${dueCount()} à revoir · prochaine échéance : ${due}`;
  $("#masteryActions").hidden=true;$("#flipCard").textContent="Voir la réponse ↻";
 }
 function flip(){
- let cards=MATH_CARDS.filter(c=>activeCategory==="Toutes"||c.cat===activeCategory);if(!cards.length)return;
+ let all=MATH_CARDS.filter(c=>activeCategory==="Toutes"||c.cat===activeCategory),cards=dueOnly?dueCards(all):all;if(!cards.length)return;
  const c=cards[currentCard];flipped=!flipped;$("#flashcard").classList.toggle("flipped",flipped);
  $("#flashSide").textContent=flipped?"RÉPONSE":"QUESTION";$("#flashQuestion").textContent=flipped?c.a:c.q;$("#flipCard").textContent=flipped?"Revoir la question ↻":"Voir la réponse ↻";$("#masteryActions").hidden=!flipped;
  if(flipped&&!state.seen.includes(c.q)){state.seen.push(c.q);save();}
 }
 $("#flashcard").addEventListener("click",flip);$("#flipCard").addEventListener("click",flip);
-function shiftCard(d){let cards=MATH_CARDS.filter(c=>activeCategory==="Toutes"||c.cat===activeCategory);currentCard=(currentCard+d+cards.length)%cards.length;renderCard()}
+function shiftCard(d){let all=MATH_CARDS.filter(c=>activeCategory==="Toutes"||c.cat===activeCategory),cards=dueOnly?dueCards(all):all;if(!cards.length)return;currentCard=(currentCard+d+cards.length)%cards.length;renderCard()}
 $("#prevCard").addEventListener("click",()=>shiftCard(-1));$("#nextCard").addEventListener("click",()=>shiftCard(1));
-$("#markKnown").addEventListener("click",()=>shiftCard(1));$("#markReview").addEventListener("click",()=>shiftCard(1));
-$$("[data-cat]").forEach(b=>b.addEventListener("click",()=>{$$("#cardFilters .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeCategory=b.dataset.cat;currentCard=0;renderCard()}));
+function rateCurrent(rating){let all=MATH_CARDS.filter(c=>activeCategory==="Toutes"||c.cat===activeCategory),cards=dueOnly?dueCards(all):all;if(!cards.length)return;scheduleCard(cards[currentCard],rating);if(dueOnly)currentCard=Math.min(currentCard,Math.max(0,dueCards(all).length-1));renderCard();}
+$("#markKnown").addEventListener("click",()=>rateCurrent("good"));$("#markReview").addEventListener("click",()=>rateCurrent("again"));
+$("#markDifficult").addEventListener("click",()=>rateCurrent("difficult"));$("#markEasy").addEventListener("click",()=>rateCurrent("easy"));
+$("#dueOnly").addEventListener("click",()=>{dueOnly=!dueOnly;$("#dueOnly").classList.toggle("active",dueOnly);$("#dueOnly").textContent=dueOnly?"Afficher toutes les cartes":"Révisions à faire";currentCard=0;renderCard()});
 
 function renderRefs(){
  const q=$("#refSearch").value.toLowerCase();const items=MATH_REFERENCES.filter(r=>(activeRefLevel==="Tous"||r.level===activeRefLevel)&&(`${r.title} ${r.body} ${r.cat}`).toLowerCase().includes(q));
@@ -121,11 +145,11 @@ $$("[data-reflevel]").forEach(b=>b.addEventListener("click",()=>{$$("#refFilters
 $("#refSearch").addEventListener("input",renderRefs);
 
 function renderProgress(){
- updateStats();$("#progressList").innerHTML=MATH_TOPICS.map(t=>`<div class="progress-row"><span class="status-dot ${state.mastered.includes(t.id)?"done":""}"></span><span class="p-name">${t.title}</span><small>${t.level} · ${t.category}</small><button data-progress="${t.id}">${state.mastered.includes(t.id)?"Maîtrisée ✓":"Marquer maîtrisée"}</button></div>`).join("");
+ updateStats();const due=dueCount(),reviewed=Object.keys(state.reviews).length;$("#reviewSummary").innerHTML=`<div class="review-summary-card"><strong>${due}</strong><span>cartes à revoir aujourd'hui</span></div><div class="review-summary-card"><strong>${reviewed}</strong><span>cartes déjà planifiées</span></div><button class="secondary-btn" id="startDueReviews">Commencer les révisions →</button>`;$("#startDueReviews").addEventListener("click",()=>{dueOnly=true;$("#dueOnly").classList.add("active");$("#dueOnly").textContent="Afficher toutes les cartes";currentCard=0;go("cards");renderCard()});$("#progressList").innerHTML=MATH_TOPICS.map(t=>`<div class="progress-row"><span class="status-dot ${state.mastered.includes(t.id)?"done":""}"></span><span class="p-name">${t.title}</span><small>${t.level} · ${t.category}</small><button data-progress="${t.id}">${state.mastered.includes(t.id)?"Maîtrisée ✓":"Marquer maîtrisée"}</button></div>`).join("");
  $$("[data-progress]").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.progress;state.mastered=state.mastered.includes(id)?state.mastered.filter(x=>x!==id):[...state.mastered,id];save();renderProgress()}));
 }
 $("#addSession").addEventListener("click",()=>{state.sessions++;save();renderProgress()});
-$("#resetProgress").addEventListener("click",()=>{if(confirm("Réinitialiser les notions maîtrisées et les séances enregistrées sur cet appareil ?")){state={mastered:[],sessions:0,seen:[]};save();renderProgress()}});
+$("#resetProgress").addEventListener("click",()=>{if(confirm("Réinitialiser les notions maîtrisées et les séances enregistrées sur cet appareil ?")){state={mastered:[],sessions:0,seen:[],reviews:{}};save();renderProgress();renderCard()}});
 updateStats();renderTopics();renderCard();renderRefs();renderProgress();
 
 /* Visualisations interactives — chaque modèle possède ses propres paramètres. */
@@ -192,7 +216,7 @@ function setVisual(type){
   schmidt:{id:'schmidtAngleSlider',from:10,to:170,step:1,label:"▶ Construire l'orthogonalité"},
   determinant:{id:'detASlider',from:0.2,to:1.8,step:0.03,label:'▶ Déformer le parallélogramme'},
   surface:{id:'surfaceAngleSlider',from:0,to:360,step:2,label:'▶ Faire tourner la surface'},
-  directsum:{id:'directAngleSlider',from:10,to:170,step:1,label:'▶ Faire varier l'angle'}
+  directsum:{id:'directAngleSlider',from:10,to:170,step:1,label:"▶ Faire varier l'angle"}
  };
  if(animated[type]) $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playVisual" type="button">'+animated[type].label+'</button>');
 
