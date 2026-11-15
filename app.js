@@ -1,5 +1,5 @@
 const $ = s => document.querySelector(s);
-const $ = s => [...document.querySelectorAll(s)];
+const $$ = s => [...document.querySelectorAll(s)];
 const visualLayout = document.querySelector(".visual-layout");
 const storeKey = "demosmaths1_progress_v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"mastered":[],"sessions":0,"seen":[]}');
