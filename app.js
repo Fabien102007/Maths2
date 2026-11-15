@@ -169,8 +169,8 @@ function setVisual(type){
  $('#visualControls').innerHTML=visualControls[type];
  if(type==='taylor') $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playTaylor" type="button">▶ Animer les ordres 0 → 10</button>');
  if(type==='fourier') $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playFourier" type="button">▶ Ajouter les harmoniques</button>');
- $('#visualControls input[type="range"]').forEach(input=>input.addEventListener('input',()=>{const out=$('#'+input.id.replace('Slider','Out'));if(out){const v=Number(input.value);out.textContent=(input.id.toLowerCase().includes('angle')||input.id==='basisSlider')?v+'°':(input.id.includes('Slider')?v.toFixed(2).replace('.',','):v);}drawVisual();}));
- $('#visualControls select').forEach(select=>select.addEventListener('change',drawVisual));
+ $( '#visualControls input[type="range"]' ).forEach(input=>input.addEventListener('input',()=>{const out=$('#'+input.id.replace('Slider','Out'));if(out){const v=Number(input.value);out.textContent=(input.id.toLowerCase().includes('angle')||input.id==='basisSlider')?v+'°':(input.id.includes('Slider')?v.toFixed(2).replace('.',','):v);}drawVisual();}));
+ $( '#visualControls select' ).forEach(select=>select.addEventListener('change',drawVisual));
  if(type==='taylor') $('#playTaylor').addEventListener('click',()=>{let n=0;$('#taylorSlider').value=0;drawVisual();if(visualTimer)clearInterval(visualTimer);visualTimer=setInterval(()=>{n++;$('#taylorSlider').value=n;drawVisual();if(n>=10){clearInterval(visualTimer);visualTimer=null;}},420);});
  if(type==='fourier') $('#playFourier').addEventListener('click',()=>{let n=1;$('#fourierSlider').value=1;drawVisual();if(visualTimer)clearInterval(visualTimer);visualTimer=setInterval(()=>{n+=2;$('#fourierSlider').value=Math.min(n,25);drawVisual();if(n>=25){clearInterval(visualTimer);visualTimer=null;}},350);});
  drawVisual();
