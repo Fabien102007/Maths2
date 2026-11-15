@@ -132,7 +132,25 @@
       <footer class="footer"><span>∑ DEMOSMATHS1</span><span>Comprendre · Démontrer · Maîtriser</span></footer>
     </main>
   </div>
-  <script src="data.js?v=20261115-2"></script>
-  <script src="app.js?v=20261115-2"></script>
+  <script>
+    // Navigation de secours si le script principal rencontre une erreur.
+    document.addEventListener("click", function (event) {
+      const trigger = event.target.closest("[data-view], [data-goto]");
+      if (!trigger) return;
+      const view = trigger.dataset.view || trigger.dataset.goto;
+      const target = document.getElementById("view-" + view);
+      if (!target) return;
+      document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === "view-" + view));
+      document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.view === view || (view === "topic" && item.dataset.view === "learn")));
+      const names = {home:"VUE D'ENSEMBLE",learn:"APPRENDRE",topic:"NOTION",cards:"FLASHCARDS",reference:"RÉFÉRENTIEL",progress:"PROGRESSION"};
+      const crumb = document.getElementById("currentSection");
+      if (crumb) crumb.textContent = names[view] || view.toUpperCase();
+      const sidebar = document.getElementById("sidebar");
+      if (sidebar) sidebar.classList.remove("open");
+      window.scrollTo({top:0,behavior:"auto"});
+    }, true);
+  </script>
+  <script src="data.js?v=20261115-3"></script>
+  <script src="app.js?v=20261115-3"></script>
 </body>
 </html>
