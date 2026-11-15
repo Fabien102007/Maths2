@@ -2,7 +2,16 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const visualLayout = document.querySelector(".visual-layout");
 const storeKey = "demosmaths1_progress_v1";
-let state = JSON.parse(localStorage.getItem(storeKey) || '{"mastered":[],"sessions":0,"seen":[]}');
+let state;
+try {
+  state = JSON.parse(localStorage.getItem(storeKey) || '{"mastered":[],"sessions":0,"seen":[]}');
+} catch (error) {
+  console.warn("Progression locale illisible, réinitialisation des données locales.", error);
+  state = { mastered: [], sessions: 0, seen: [] };
+}
+if (!state || !Array.isArray(state.mastered) || !Array.isArray(state.seen) || !Number.isFinite(state.sessions)) {
+  state = { mastered: [], sessions: 0, seen: [] };
+}
 let activeLevel="Tous", activeRefLevel="Tous", activeCategory="Toutes", currentCard=0, flipped=false, activeVisual="convergence", visualTimer=null;
 function save(){localStorage.setItem(storeKey,JSON.stringify(state));updateStats();}
 function updateStats(){
