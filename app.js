@@ -178,10 +178,42 @@ function setVisual(type){
  $('#visualControls').innerHTML=visualControls[type];
  if(type==='taylor') $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playTaylor" type="button">▶ Animer les ordres 0 → 10</button>');
  if(type==='fourier') $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playFourier" type="button">▶ Ajouter les harmoniques</button>');
+ const animated={
+  convergence:{id:'nSlider',from:1,to:40,step:1,label:'▶ Animer la convergence'},
+  limit:{id:'nearSlider',from:1.2,to:0.02,step:-0.02,label:'▶ Approcher le point'},
+  continuity:{id:'cxSlider',from:-2.5,to:2.5,step:0.08,label:'▶ Déplacer le point'},
+  derivative:{id:'hSlider',from:1.5,to:0.02,step:-0.025,label:'▶ Sécante → tangente'},
+  ivt:{id:'targetSlider',from:-1,to:1,step:0.025,label:'▶ Parcourir les valeurs'},
+  integral:{id:'rectSlider',from:4,to:80,step:1,label:'▶ Affiner les rectangles'},
+  trig:{id:'angleSlider',from:0,to:360,step:2,label:'▶ Faire tourner le point'},
+  linear:{id:'kSlider',from:-1.5,to:1.5,step:0.04,label:'▶ Animer le cisaillement'},
+  basis:{id:'basisSlider',from:0,to:180,step:1,label:'▶ Faire tourner le vecteur'},
+  eigen:{id:'lambdaSlider',from:-2,to:2,step:0.04,label:'▶ Faire varier λ₁'},
+  schmidt:{id:'schmidtAngleSlider',from:10,to:170,step:1,label:'▶ Construire l'orthogonalité'},
+  determinant:{id:'detASlider',from:0.2,to:1.8,step:0.03,label:'▶ Déformer le parallélogramme'},
+  surface:{id:'surfaceAngleSlider',from:0,to:360,step:2,label:'▶ Faire tourner la surface'},
+  directsum:{id:'directAngleSlider',from:10,to:170,step:1,label:'▶ Faire varier l'angle'}
+ };
+ if(animated[type]) $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playVisual" type="button">'+animated[type].label+'</button>');
+
  $$( '#visualControls input[type="range"]' ).forEach(input=>input.addEventListener('input',()=>{const out=$('#'+input.id.replace('Slider','Out'));if(out){const v=Number(input.value);out.textContent=(input.id.toLowerCase().includes('angle')||input.id==='basisSlider')?v+'°':(input.id.includes('Slider')?v.toFixed(2).replace('.',','):v);}drawVisual();}));
  $$( '#visualControls select' ).forEach(select=>select.addEventListener('change',drawVisual));
  if(type==='taylor') $('#playTaylor').addEventListener('click',()=>{let n=0;$('#taylorSlider').value=0;drawVisual();if(visualTimer)clearInterval(visualTimer);visualTimer=setInterval(()=>{n++;$('#taylorSlider').value=n;drawVisual();if(n>=10){clearInterval(visualTimer);visualTimer=null;}},420);});
  if(type==='fourier') $('#playFourier').addEventListener('click',()=>{let n=1;$('#fourierSlider').value=1;drawVisual();if(visualTimer)clearInterval(visualTimer);visualTimer=setInterval(()=>{n+=2;$('#fourierSlider').value=Math.min(n,25);drawVisual();if(n>=25){clearInterval(visualTimer);visualTimer=null;}},350);});
+ if(animated[type]) $('#playVisual')?.addEventListener('click',()=>{
+  if(visualTimer){clearInterval(visualTimer);visualTimer=null;}
+  const cfg=animated[type],input=$('#'+cfg.id);if(!input)return;
+  let value=cfg.from,direction=Math.sign(cfg.to-cfg.from);
+  input.value=value;drawVisual();
+  visualTimer=setInterval(()=>{
+   value+=cfg.step;
+   const finished=direction>0?value>=cfg.to:value<=cfg.to;
+   if(finished)value=cfg.to;
+   input.value=String(value);drawVisual();
+   if(finished){clearInterval(visualTimer);visualTimer=null;}
+  },35);
+ });
+
  drawVisual();
 }
 $$('[data-visual]').forEach(b=>b.addEventListener('click',()=>setVisual(b.dataset.visual)));
@@ -212,4 +244,17 @@ function drawDeterminant(){base();const a=+$('#detASlider').value,b=+$('#detBSli
 function drawSurface(){base();const fn=$('#surfaceFunction').value,ang=+$('#surfaceAngleSlider').value*Math.PI/180,cx=450,cy=270,s=60;const f=(x,y)=>fn==='bowl'?0.22*(x*x+y*y):fn==='saddle'?0.22*(x*x-y*y):1.2*Math.sin(x)*Math.cos(y);const project=(x,y,z)=>[cx+(x*Math.cos(ang)-y*Math.sin(ang))*s,cy+(x*Math.sin(ang)+y*Math.cos(ang))*s-z*48];for(let j=-5;j<=5;j++){ctx.beginPath();for(let i=-5;i<=5;i++){const p=project(i,j,f(i,j));i===-5?ctx.moveTo(...p):ctx.lineTo(...p)}ctx.strokeStyle='#6bd4c8';ctx.lineWidth=1.5;ctx.stroke()}for(let i=-5;i<=5;i++){ctx.beginPath();for(let j=-5;j<=5;j++){const p=project(i,j,f(i,j));j===-5?ctx.moveTo(...p):ctx.lineTo(...p)}ctx.strokeStyle='#8bb5ff';ctx.lineWidth=1.3;ctx.stroke()}label('z = '+(fn==='bowl'?'x²+y²':fn==='saddle'?'x²−y²':'sin(x)cos(y)'),55,55,'#e9bf78');label('Surface 3D · angle '+Math.round(ang*180/Math.PI)+'°',55,82);$('#surfaceAngleOut').textContent=Math.round(ang*180/Math.PI)+'°'}
 function drawDirectsum(){base();const ang=+$('#directAngleSlider').value*Math.PI/180,x=+$('#directXSlider').value,y=+$('#directYSlider').value,cx=450,cy=245,s=100,g=[Math.cos(ang),Math.sin(ang)],vf=[x,0],vg=[y*g[0],y*g[1]],v=[vf[0]+vg[0],vf[1]+vg[1]];const arrow=(q,col,n)=>{ctx.strokeStyle=col;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+q[0]*s,cy-q[1]*s);ctx.stroke();label(n,cx+q[0]*s+8,cy-q[1]*s-8,col)};ctx.strokeStyle='#52677f';ctx.beginPath();ctx.moveTo(30,cy);ctx.lineTo(870,cy);ctx.stroke();arrow([1,0],'#8bb5ff','F');arrow(g,'#e9bf78','G');arrow(vf,'#8bb5ff','composante f');arrow(vg,'#e9bf78','composante g');ctx.setLineDash([5,4]);ctx.strokeStyle='#e9bf78';ctx.beginPath();ctx.moveTo(cx+vf[0]*s,cy-vf[1]*s);ctx.lineTo(cx+v[0]*s,cy-v[1]*s);ctx.stroke();ctx.setLineDash([]);arrow(v,'#6bd4c8','v=f+g');label('F∩G={0} si l’angle n’est pas 0° ou 180°',55,55,'#c2aaff');$('#directAngleOut').textContent=Math.round(ang*180/Math.PI)+'°';$('#directXOut').textContent=x.toFixed(1).replace('.',',');$('#directYOut').textContent=y.toFixed(1).replace('.',',')}
 function drawVisual(){({convergence:drawConvergence,limit:drawLimit,continuity:drawContinuity,derivative:drawDerivative,ivt:drawIVT,integral:drawIntegral,trig:drawTrig,injectivity:drawInjectivity,surjectivity:drawSurjectivity,linear:drawLinear,basis:drawBasis,eigen:drawEigen,schmidt:drawSchmidt,fourier:drawFourier,taylor:drawTaylor,determinant:drawDeterminant,surface:drawSurface,directsum:drawDirectsum}[activeVisual]||drawConvergence)()}
+function syncCanvasResolution(){
+ const rect=canvas.getBoundingClientRect();
+ if(!rect.width)return;
+ const ratio=Math.max(1,Math.min(3,window.devicePixelRatio||1))*rect.width/900;
+ const width=Math.round(900*ratio),height=Math.round(480*ratio);
+ if(canvas.width!==width||canvas.height!==height){
+  canvas.width=width;canvas.height=height;
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  drawVisual();
+ }
+}
+window.addEventListener('resize',syncCanvasResolution,{passive:true});
 setVisual('convergence');
+requestAnimationFrame(syncCanvasResolution);
