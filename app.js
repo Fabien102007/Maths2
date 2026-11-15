@@ -189,7 +189,7 @@ function setVisual(type){
   linear:{id:'kSlider',from:-1.5,to:1.5,step:0.04,label:'▶ Animer le cisaillement'},
   basis:{id:'basisSlider',from:0,to:180,step:1,label:'▶ Faire tourner le vecteur'},
   eigen:{id:'lambdaSlider',from:-2,to:2,step:0.04,label:'▶ Faire varier λ₁'},
-  schmidt:{id:'schmidtAngleSlider',from:10,to:170,step:1,label:'▶ Construire l'orthogonalité'},
+  schmidt:{id:'schmidtAngleSlider',from:10,to:170,step:1,label:"▶ Construire l'orthogonalité"},
   determinant:{id:'detASlider',from:0.2,to:1.8,step:0.03,label:'▶ Déformer le parallélogramme'},
   surface:{id:'surfaceAngleSlider',from:0,to:360,step:2,label:'▶ Faire tourner la surface'},
   directsum:{id:'directAngleSlider',from:10,to:170,step:1,label:'▶ Faire varier l'angle'}
