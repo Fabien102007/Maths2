@@ -119,7 +119,7 @@ function renderCard(){
  $("#flashcard").classList.remove("flipped");$("#flashCategory").textContent=`${c.cat.toUpperCase()} · ${c.level}`;$("#flashNumber").textContent=`${String(currentCard+1).padStart(2,"0")} / ${cards.length}`;
  $("#flashSide").textContent="QUESTION";$("#flashQuestion").textContent=c.q;
  const info=reviewInfo(c),due=info.due?new Date(info.due).toLocaleDateString("fr-FR"):"À découvrir";
- $("#cardCounter").textContent=`${cards.length} cartes · ${dueCount()} à revoir · prochaine échéance : ${due}`;
+ $("#cardCounter").textContent=`${cards.length} cartes · ${dueCount()} à découvrir / revoir · prochaine échéance : ${due}`;
  $("#masteryActions").hidden=true;$("#flipCard").textContent="Voir la réponse ↻";
 }
 function flip(){
@@ -145,7 +145,7 @@ $$("[data-reflevel]").forEach(b=>b.addEventListener("click",()=>{$$("#refFilters
 $("#refSearch").addEventListener("input",renderRefs);
 
 function renderProgress(){
- updateStats();const due=dueCount(),reviewed=Object.keys(state.reviews).length;$("#reviewSummary").innerHTML=`<div class="review-summary-card"><strong>${due}</strong><span>cartes à revoir aujourd'hui</span></div><div class="review-summary-card"><strong>${reviewed}</strong><span>cartes déjà planifiées</span></div><button class="secondary-btn" id="startDueReviews">Commencer les révisions →</button>`;$("#startDueReviews").addEventListener("click",()=>{dueOnly=true;$("#dueOnly").classList.add("active");$("#dueOnly").textContent="Afficher toutes les cartes";currentCard=0;go("cards");renderCard()});$("#progressList").innerHTML=MATH_TOPICS.map(t=>`<div class="progress-row"><span class="status-dot ${state.mastered.includes(t.id)?"done":""}"></span><span class="p-name">${t.title}</span><small>${t.level} · ${t.category}</small><button data-progress="${t.id}">${state.mastered.includes(t.id)?"Maîtrisée ✓":"Marquer maîtrisée"}</button></div>`).join("");
+ updateStats();const due=dueCount(),reviewed=Object.keys(state.reviews).length;$("#reviewSummary").innerHTML=`<div class="review-summary-card"><strong>${due}</strong><span>cartes à découvrir / revoir</span></div><div class="review-summary-card"><strong>${reviewed}</strong><span>cartes déjà planifiées</span></div><button class="secondary-btn" id="startDueReviews">Commencer les révisions →</button>`;$("#startDueReviews").addEventListener("click",()=>{dueOnly=true;$("#dueOnly").classList.add("active");$("#dueOnly").textContent="Afficher toutes les cartes";currentCard=0;go("cards");renderCard()});$("#progressList").innerHTML=MATH_TOPICS.map(t=>`<div class="progress-row"><span class="status-dot ${state.mastered.includes(t.id)?"done":""}"></span><span class="p-name">${t.title}</span><small>${t.level} · ${t.category}</small><button data-progress="${t.id}">${state.mastered.includes(t.id)?"Maîtrisée ✓":"Marquer maîtrisée"}</button></div>`).join("");
  $$("[data-progress]").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.progress;state.mastered=state.mastered.includes(id)?state.mastered.filter(x=>x!==id):[...state.mastered,id];save();renderProgress()}));
 }
 $("#addSession").addEventListener("click",()=>{state.sessions++;save();renderProgress()});
