@@ -1,5 +1,6 @@
 const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+const $ = s => [...document.querySelectorAll(s)];
+const visualLayout = document.querySelector(".visual-layout");
 const storeKey = "demosmaths1_progress_v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"mastered":[],"sessions":0,"seen":[]}');
 let activeLevel="Tous", activeRefLevel="Tous", activeCategory="Toutes", currentCard=0, flipped=false, activeVisual="convergence", visualTimer=null;
@@ -49,8 +50,34 @@ const EXERCISES={
 };
 function showTopic(id){
  const t=MATH_TOPICS.find(x=>x.id===id);if(!t)return;
- $("#topicDetail").innerHTML=`<div class="detail-header"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h1>${t.title}</h1><p>${t.desc}</p></div><div class="detail-content"><article class="panel detail-block"><h3>Définition essentielle</h3><p>${t.definition}</p><div class="math-formula">${t.formula}</div><h3>Comment raisonner ?</h3><p>${t.proof}</p><h3>Points de vigilance</h3><ul>${t.points.map(p=>`<li>${p}</li>`).join("")}</ul></article><aside class="panel detail-block"><h3>Exemple</h3><p>${t.example}</p><div class="callout"><b>Conseil de méthode</b><br>Essaie de reformuler la définition sans regarder, puis démontre un résultat simple qui l'utilise.</div><button class="primary-btn" id="topicCards" style="margin-top:18px;width:100%">Réviser avec les cartes →</button><button class="secondary-btn" id="toggleMastery" style="margin-top:9px;width:100%">${state.mastered.includes(t.id)?"Retirer des notions maîtrisées":"Marquer comme maîtrisée ✓"}</button></aside></div><article class="panel exercise-panel"><span class="eyebrow">PASSER À LA PRATIQUE</span><h2>Vérifie que tu as compris.</h2><p class="muted">Réponds sans regarder le cours, puis affiche la correction détaillée.</p><div class="exercise-question"><b>${(EXERCISES[t.id]||{q:"Reformule la définition avec tes propres mots et donne un exemple."}).q}</b></div><button class="secondary-btn" id="showExercise">Afficher un indice / la correction</button><div class="exercise-answer" id="exerciseAnswer" hidden>${(EXERCISES[t.id]||{a:"Une bonne réponse doit reprendre les hypothèses, la définition précise et un exemple pertinent."}).a}</div></article>`;
- $("#showExercise").addEventListener("click",()=>{const box=$("#exerciseAnswer");box.hidden=!box.hidden;});
+ $("#topicDetail").innerHTML=`<div class="detail-header"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h1>${t.title}</h1><p>${t.desc}</p></div><div class="detail-content"><article class="panel detail-block"><h3>Définition essentielle</h3><p>${t.definition}</p><div class="math-formula">${t.formula}</div><div id="topicVisualHost" class="topic-visual-host"></div><h3>Comment raisonner ?</h3><p>${t.proof}</p><h3>Points de vigilance</h3><ul>${t.points.map(p=>`<li>${p}</li>`).join("")}</ul></article><aside class="panel detail-block"><h3>Exemple</h3><p>${t.example}</p><div class="callout"><b>Conseil de méthode</b><br>Essaie de reformuler la définition sans regarder, puis démontre un résultat simple qui l'utilise.</div><button class="primary-btn" id="topicCards" style="margin-top:18px;width:100%">Réviser avec les cartes →</button><button class="secondary-btn" id="toggleMastery" style="margin-top:9px;width:100%">${state.mastered.includes(t.id)?"Retirer des notions maîtrisées":"Marquer comme maîtrisée ✓"}</button></aside></div><article class="panel exercise-panel"><span class="eyebrow">PASSER À LA PRATIQUE</span><h2>Vérifie que tu as compris.</h2><p class="muted">Réponds sans regarder le cours, puis affiche la correction détaillée.</p><div class="exercise-question"><b>${(EXERCISES[t.id]||{q:"Reformule la définition avec tes propres mots et donne un exemple."}).q}</b></div><button class="secondary-btn" id="showExercise">Afficher un indice / la correction</button><div class="exercise-answer" id="exerciseAnswer" hidden>${(EXERCISES[t.id]||{a:"Une bonne réponse doit reprendre les hypothèses, la définition précise et un exemple pertinent."}).a}</div></article>`;
+ const visualMap={
+  "suite-limite":["convergence"],
+  "continuite":["continuity","limit"],
+  "derivee":["derivative"],
+  "theoreme-valeurs-intermediaires":["ivt"],
+  "integrale":["integral"],
+  "series":["fourier"],
+  "uniforme":["convergence"],
+  "espaces-vectoriels":["directsum"],
+  "familles-liberes":["basis"],
+  "applications-lineaires":["injectivity","surjectivity","linear"],
+  "diagonalisation":["eigen"],
+  "schmidt":["schmidt"],
+  "fourier":["fourier"],
+  "developpements-limites":["taylor"],
+  "determinant":["determinant"],
+  "fonctions-deux-variables":["surface"],
+  "somme-directe":["directsum"]
+ };
+ const availableVisuals=visualMap[t.id]||[];
+ if(availableVisuals.length&&visualLayout){
+  const host=$("#topicVisualHost");
+  host.innerHTML='<div class="topic-visual-heading"><span class="eyebrow">VISUALISER POUR COMPRENDRE</span><label class="visual-picker-label">Animation associée <select id="topicVisualPicker">'+availableVisuals.map(v=>'<option value="'+v+'">'+visualConfig[v].title+'</option>').join("")+'</select></label></div>';
+  host.appendChild(visualLayout);
+  setVisual(availableVisuals[0]);
+  $("#topicVisualPicker").addEventListener("change",e=>setVisual(e.target.value));
+ }
  $("#topicCards").addEventListener("click",()=>{activeCategory=t.category;currentCard=MATH_CARDS.findIndex(c=>c.cat===t.category);if(currentCard<0)currentCard=0;go("cards");renderCard()});
  $("#toggleMastery").addEventListener("click",()=>{if(state.mastered.includes(t.id))state.mastered=state.mastered.filter(x=>x!==t.id);else state.mastered.push(t.id);save();showTopic(id);renderTopics()});
  go("topic");
@@ -142,7 +169,8 @@ function setVisual(type){
  $('#visualControls').innerHTML=visualControls[type];
  if(type==='taylor') $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playTaylor" type="button">▶ Animer les ordres 0 → 10</button>');
  if(type==='fourier') $('#visualControls').insertAdjacentHTML('beforeend','<button class="secondary-btn visual-play" id="playFourier" type="button">▶ Ajouter les harmoniques</button>');
- $$('#visualControls input, #visualControls select').forEach(input=>input.addEventListener('input',()=>{const out=$('#'+input.id.replace('Slider','Out'));if(out){let v=Number(input.value);out.textContent=(input.id.toLowerCase().includes('angle')||input.id==='basisSlider')?v+'°':(input.id.includes('Slider')?v.toFixed(2).replace('.',','):v);}drawVisual()}));
+ $('#visualControls input[type="range"]').forEach(input=>input.addEventListener('input',()=>{const out=$('#'+input.id.replace('Slider','Out'));if(out){const v=Number(input.value);out.textContent=(input.id.toLowerCase().includes('angle')||input.id==='basisSlider')?v+'°':(input.id.includes('Slider')?v.toFixed(2).replace('.',','):v);}drawVisual();}));
+ $('#visualControls select').forEach(select=>select.addEventListener('change',drawVisual));
  if(type==='taylor') $('#playTaylor').addEventListener('click',()=>{let n=0;$('#taylorSlider').value=0;drawVisual();if(visualTimer)clearInterval(visualTimer);visualTimer=setInterval(()=>{n++;$('#taylorSlider').value=n;drawVisual();if(n>=10){clearInterval(visualTimer);visualTimer=null;}},420);});
  if(type==='fourier') $('#playFourier').addEventListener('click',()=>{let n=1;$('#fourierSlider').value=1;drawVisual();if(visualTimer)clearInterval(visualTimer);visualTimer=setInterval(()=>{n+=2;$('#fourierSlider').value=Math.min(n,25);drawVisual();if(n>=25){clearInterval(visualTimer);visualTimer=null;}},350);});
  drawVisual();
