@@ -58,6 +58,21 @@ window.MATH_CARDS = [
 {cat:"Algèbre",level:"MP",q:"Que dit le théorème du rang ?",a:"Pour une application linéaire f:E→F avec E de dimension finie : dim(E)=dim(Ker f)+rg(f)."}
 ];
 
+
+const MATH_CHAPTERS={
+ "Limites et suites":["suite-limite"],
+ "Continuité, dérivation et théorèmes associés":["continuite","derivee","iaf","rolle","theoreme-valeurs-intermediaires"],
+ "Intégration":["integrale","integrales-generalisees"],
+ "Séries et développements limités":["series","uniforme","developpements-limites","fourier","legendre"],
+ "Fonctions de plusieurs variables":["fonctions-deux-variables"],
+ "Espaces vectoriels et sous-espaces":["espaces-vectoriels","familles-liberes","somme-directe","hyperplan"],
+ "Applications linéaires et matrices":["applications-lineaires","determinant","diagonalisation"],
+ "Structures algébriques":["groupes","anneaux","corps","groupes-anneaux-corps"],
+ "Espaces préhilbertiens et orthogonalité":["prehilbert","schmidt","ev-normes"],
+ "Topologie et compacité":["compacite"]
+};
+for(const [chapter,ids] of Object.entries(MATH_CHAPTERS)) for(const id of ids){const topic=window.MATH_TOPICS.find(t=>t.id===id);if(topic)topic.chapter=chapter;}
+
 window.MATH_REFERENCES = [
 {level:"L1",cat:"Analyse",title:"Unicité de la limite",body:"Si une suite réelle converge, alors sa limite est unique.",formula:"uₙ → ℓ et uₙ → ℓ′ ⇒ ℓ = ℓ′"},
 {level:"L1",cat:"Analyse",title:"Théorème des gendarmes",body:"Si uₙ ≤ vₙ ≤ wₙ à partir d'un certain rang et si uₙ et wₙ convergent vers la même limite ℓ, alors vₙ converge vers ℓ.",formula:"uₙ ≤ vₙ ≤ wₙ ; uₙ,wₙ → ℓ ⇒ vₙ → ℓ"},
@@ -82,6 +97,22 @@ window.MATH_REFERENCES = [
 {level:"L2",cat:"Algèbre",title:"Norme",body:"Une norme est positive, définie, homogène et vérifie l'inégalité triangulaire.",formula:"‖x+y‖≤‖x‖+‖y‖"},
 {level:"L2",cat:"Algèbre",title:"Groupe, anneau, corps",body:"Ces structures enrichissent un ensemble d'une ou deux lois et d'axiomes d'inversibilité. Un corps permet de diviser par tout élément non nul.",formula:"Corps : (K,+,×), inverses multiplicatifs pour K\{0}"},
 {level:"MP",cat:"Analyse",title:"Polynômes de Legendre",body:"Les polynômes de Legendre sont orthogonaux sur [−1,1] pour le produit scalaire intégral.",formula:"∫₋₁¹Pₙ(x)Pₘ(x)dx=0 si n≠m"}
+
+
+,{level:"L1",cat:"Analyse",title:"Inégalité des accroissements finis (IAF)",body:"Si f est continue sur [a,b], dérivable sur ]a,b[ et si |f′(x)|≤M sur ]a,b[, alors f est M-lipschitzienne sur [a,b].",formula:"|f(b)-f(a)|≤M|b-a|"}
+,{level:"L1",cat:"Analyse",title:"Théorème de Rolle",body:"Si f est continue sur [a,b], dérivable sur ]a,b[ et f(a)=f(b), alors il existe c∈]a,b[ tel que f′(c)=0.",formula:"f(a)=f(b) ⇒ ∃c∈]a,b[ : f′(c)=0"}
+,{level:"L1",cat:"Algèbre",title:"Définition d'un groupe",body:"Un groupe (G,⋆) est un ensemble muni d'une loi associative, possédant un élément neutre, et dans lequel tout élément possède un inverse. Il est abélien si la loi est commutative.",formula:"(a⋆b)⋆c=a⋆(b⋆c), e⋆a=a⋆e=a, a⋆a⁻¹=e"}
+,{level:"L1",cat:"Algèbre",title:"Définition d'un anneau",body:"Un anneau (A,+,×) est un groupe abélien pour l'addition, muni d'une multiplication associative et distributive par rapport à l'addition. Selon la convention, on précise s'il est unitaire et commutatif.",formula:"a(b+c)=ab+ac ; (a+b)c=ac+bc"}
+,{level:"L1",cat:"Algèbre",title:"Définition d'un corps",body:"Un corps commutatif est un anneau commutatif unitaire dans lequel tout élément non nul possède un inverse multiplicatif.",formula:"∀a∈K\\{0}, ∃a⁻¹∈K : aa⁻¹=1"}
+,{level:"L1",cat:"Algèbre",title:"Espace préhilbertien réel",body:"Un espace préhilbertien réel est un espace vectoriel réel muni d'un produit scalaire : bilinéaire, symétrique et défini positif.",formula:"⟨x,y⟩=⟨y,x⟩ ; ⟨x,x⟩≥0 ; ⟨x,x⟩=0 ⇔ x=0"}
+,{level:"L1",cat:"Algèbre",title:"Inégalité de Cauchy-Schwarz",body:"Dans un espace préhilbertien, le produit scalaire est majoré par le produit des normes. L'égalité a lieu lorsque les vecteurs sont liés.",formula:"|⟨x,y⟩|≤‖x‖‖y‖"}
+,{level:"L1",cat:"Algèbre",title:"Identité de Pythagore",body:"Deux vecteurs orthogonaux vérifient une identité analogue au théorème de Pythagore. Elle sert notamment à justifier les projections orthogonales et Gram-Schmidt.",formula:"x⊥y ⇒ ‖x+y‖²=‖x‖²+‖y‖²"}
+,{level:"L1",cat:"Algèbre",title:"Projection orthogonale sur une droite",body:"Dans un espace préhilbertien réel, la projection de v sur la droite vectorielle engendrée par u non nul est le multiple de u dont le résidu est orthogonal à u.",formula:"p=⟨v,u⟩/‖u‖² ·u ; ⟨v-p,u⟩=0"}
+,{level:"L2",cat:"Analyse",title:"Critère de Cauchy pour les suites",body:"Une suite réelle converge si et seulement si elle est de Cauchy : ses termes deviennent arbitrairement proches les uns des autres à partir d'un certain rang.",formula:"∀ε>0, ∃N, ∀p,q≥N : |uₚ-u_q|<ε"}
+,{level:"L2",cat:"Analyse",title:"Séries de Riemann",body:"La série de terme général 1/nᵅ converge exactement lorsque α>1.",formula:"∑ₙ≥1 1/nᵅ converge ⇔ α>1"}
+,{level:"L2",cat:"Algèbre",title:"Théorème du rang",body:"Pour une application linéaire entre espaces de dimension finie, la dimension du noyau plus celle de l'image égale la dimension de l'espace de départ.",formula:"dim(E)=dim(Ker f)+dim(Im f)"}
+,{level:"MP",cat:"Analyse",title:"Théorème de Heine-Cantor",body:"Toute fonction continue sur un compact métrique est uniformément continue.",formula:"K compact, f continue sur K ⇒ f uniformément continue"}
+,{level:"MP",cat:"Algèbre",title:"Théorème spectral réel",body:"Toute matrice réelle symétrique est diagonalisable dans une base orthonormée ; ses valeurs propres sont réelles.",formula:"A=Aᵀ ⇒ ∃Q orthogonale, D diagonale : A=QDQᵀ"}
 
 ];
 window.MATH_TOPICS.forEach(t=>{
