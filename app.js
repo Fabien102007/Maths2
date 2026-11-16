@@ -78,17 +78,17 @@ function renderExercises(){
  }).join("")||'<p class="muted">Aucun exercice ne correspond à ces filtres.</p>';
  $$("#exerciseList [data-hint]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-hint-panel="'+b.dataset.hint+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Afficher un indice":"Masquer l'indice";if(!el.hidden)typesetMath(el);}));
  $$("#exerciseList [data-answer]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-answer-panel="'+b.dataset.answer+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Voir la correction":"Masquer la correction";if(!el.hidden)typesetMath(el);}));
- // Délégation robuste : le lien reste fonctionnel après chaque nouveau rendu.
- document.addEventListener("click",event=>{
-  const button=event.target.closest("#exerciseList [data-open-topic]");
-  if(!button)return;
-  event.preventDefault();
-  showTopic(button.dataset.openTopic);
- });
+ 
  typesetMath($("#exerciseList"));
 }
 $$("[data-difficulty]").filter(b=>b.closest("#exerciseDifficulty")).forEach(b=>b.addEventListener("click",()=>{$$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
 $("#exerciseSearch").addEventListener("input",renderExercises);
+document.addEventListener("click",event=>{
+ const button=event.target.closest("#exerciseList [data-open-topic]");
+ if(!button)return;
+ event.preventDefault();
+ showTopic(button.dataset.openTopic);
+});
 
 const EXERCISES={
  schmidt:{q:"Dans ℝ², prends v₁=(1,0) et v₂=(1,1). Quelle est la projection de v₂ sur v₁, puis le vecteur orthogonal obtenu ?",a:"⟨v₂,v₁⟩/‖v₁‖²=1, donc projᵥ₁(v₂)=(1,0). Le résidu vaut w₂=(1,1)−(1,0)=(0,1). Les deux vecteurs sont déjà unitaires et orthogonaux."},
