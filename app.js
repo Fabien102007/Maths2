@@ -58,7 +58,13 @@ let activeDifficulty="Tous";
 function texFormula(value){const raw=String(value??"");if(!raw)return "";if(raw.includes("\\(")||raw.includes("\\["))return raw;return "\\("+raw+"\\)";}
 function mathText(value){
  const symbols={"ℝ":"\\mathbb{R}","ℕ":"\\mathbb{N}","ℤ":"\\mathbb{Z}","ℚ":"\\mathbb{Q}","ℂ":"\\mathbb{C}","ε":"\\varepsilon","δ":"\\delta","λ":"\\lambda","μ":"\\mu","π":"\\pi","θ":"\\theta","∀":"\\forall","∃":"\\exists","∈":"\\in","∉":"\\notin","≤":"\\leq","≥":"\\geq","≠":"\\ne","⇒":"\\Rightarrow","⇔":"\\Leftrightarrow","→":"\\to","∑":"\\sum","∫":"\\int","∞":"\\infty","∩":"\\cap","∪":"\\cup","⊂":"\\subset","⊕":"\\oplus","×":"\\times","·":"\\cdot"};
- return String(value??"").replace(/[ℝℕℤℚℂεδλμπθ∀∃∈∉≤≥≠⇒⇔→∑∫∞∩∪⊂⊕×·]/g,ch=>"\\("+symbols[ch]+"\\)");
+ let s=String(value??"");
+ const sub={"₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9","ₙ":"n","ₚ":"p","ₖ":"k","ₘ":"m"};
+ const sup={"⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9","ⁿ":"n"};
+ s=s.replace(/([A-Za-z])([₀₁₂₃₄₅₆₇₈₉ₙₚₖₘ])/g,(_,a,b)=>"\\("+a+"_{"+sub[b]+"}\\)");
+ s=s.replace(/([A-Za-z0-9])([⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ])/g,(_,a,b)=>"\\("+a+"^{"+sup[b]+"}\\)");
+ s=s.replace(/([A-Za-z])′/g,(_,a)=>"\\("+a+"'\\)");
+ return s.replace(/[ℝℕℤℚℂεδλμπθ∀∃∈∉≤≥≠⇒⇔→∑∫∞∩∪⊂⊕×·]/g,ch=>"\\("+symbols[ch]+"\\)");
 }
 function typesetMath(root){if(!window.MathJax||!window.MathJax.typesetPromise)return;try{window.MathJax.typesetClear?.([root]);window.MathJax.typesetPromise([root]).catch(()=>{});}catch(e){console.warn("MathJax:",e);}}
 function renderExercises(){
