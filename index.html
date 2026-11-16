@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="icons/math-logo.svg">
   <meta name="description" content="Maths2 — comprendre, mémoriser et visualiser les mathématiques.">
   <title>Maths2 — Maîtriser les maths</title>
-  <link rel="stylesheet" href="style.css?v=20261116-1">
+  <link rel="stylesheet" href="style.css?v=20261116-2">
 </head>
 <body>
   <div class="app-shell">
@@ -143,7 +143,7 @@
       if (!target) return;
       document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === "view-" + view));
       document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.view === view || (view === "topic" && item.dataset.view === "learn")));
-      const names = {home:"VUE D'ENSEMBLE",learn:"APPRENDRE",topic:"NOTION",cards:"FLASHCARDS",reference:"RÉFÉRENTIEL",progress:"PROGRESSION"};
+      const names = {home:"VUE D'ENSEMBLE",learn:"APPRENDRE",topic:"NOTION",exercises:"EXERCICES",cards:"FLASHCARDS",reference:"RÉFÉRENTIEL",progress:"PROGRESSION"};
       const crumb = document.getElementById("currentSection");
       if (crumb) crumb.textContent = names[view] || view.toUpperCase();
       const sidebar = document.getElementById("sidebar");
@@ -151,9 +151,9 @@
       window.scrollTo({top:0,behavior:"auto"});
     }, true);
   </script>
-  <script>window.MathJax={tex:{inlineMath:[["\\\\(","\\\\)"],["$","$"]],displayMath:[["\\\\[","\\\\]"]]},options:{skipHtmlTags:["script","noscript","style","textarea","pre","code"]}};</script>
+  <script>window.MathJax={tex:{inlineMath:[["\\(","\\)"],["$","$"]],displayMath:[["\\\\[","\\\\]"]]},options:{skipHtmlTags:["script","noscript","style","textarea","pre","code"]}};</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-  <script src="data.js?v=20261116-1"></script>
-  <script src="app.js?v=20261116-1"></script>
+  <script src="data.js?v=20261116-2"></script>
+  <script src="app.js?v=20261116-2"></script>
 </body>
 </html>
