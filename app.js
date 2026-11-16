@@ -32,7 +32,7 @@ function updateStats(){
 function go(view){
  $$(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));
  $$(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view || (view==="topic"&&b.dataset.view==="learn")));
- const names={home:"VUE D'ENSEMBLE",learn:"APPRENDRE",topic:"NOTION",cards:"FLASHCARDS",visuals:"VISUALISATIONS",reference:"RÉFÉRENTIEL",progress:"PROGRESSION"};
+ const names={home:"VUE D'ENSEMBLE",learn:"APPRENDRE",topic:"NOTION",cards:"FLASHCARDS",visuals:"VISUALISATIONS",exercises:"EXERCICES",reference:"RÉFÉRENTIEL",progress:"PROGRESSION"};
  $("#currentSection").textContent=names[view]||view.toUpperCase();$("#sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"});
  if(view==="progress")renderProgress();
 }
@@ -42,13 +42,42 @@ $("#mobileMenu").addEventListener("click",()=>$("#sidebar").classList.toggle("op
 $("#todayLabel").textContent=new Intl.DateTimeFormat("fr-FR",{weekday:"short",day:"numeric",month:"short"}).format(new Date()).toUpperCase();
 
 function renderTopics(){
- const q=$("#topicSearch").value.toLowerCase();
- const items=MATH_TOPICS.filter(t=>(activeLevel==="Tous"||t.level===activeLevel)&&(`${t.title} ${t.desc} ${t.category}`).toLowerCase().includes(q));
- $("#topicGrid").innerHTML=items.map(t=>`<article class="topic-card" data-topic="${t.id}" tabindex="0"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h3>${t.title}</h3><p>${t.desc}</p><div class="topic-card-foot"><span>${t.duration} · ${state.mastered.includes(t.id)?"Maîtrisée":"À découvrir"}</span><b>↗</b></div></article>`).join("")||'<p class="muted">Aucune notion ne correspond à cette recherche.</p>';
- $$(".topic-card").forEach(el=>{const open=()=>showTopic(el.dataset.topic);el.addEventListener("click",open);el.addEventListener("keydown",e=>{if(e.key==="Enter")open()})});
+ const q=$("#topicSearch").value.toLocaleLowerCase("fr");
+ const items=MATH_TOPICS.filter(t=>(activeLevel==="Tous"||t.level===activeLevel)&&((t.title+" "+t.desc+" "+t.category+" "+(t.chapter||"")).toLocaleLowerCase("fr").includes(q)));
+ const groups=[...new Set(items.map(t=>t.chapter||t.category+" — notions"))];
+ $("#topicGrid").innerHTML=groups.map(chapter=>{
+  const group=items.filter(t=>(t.chapter||t.category+" — notions")===chapter);
+  return '<section class="chapter-group"><div class="chapter-heading"><span class="eyebrow">'+group[0].category.toUpperCase()+'</span><h2>'+chapter+'</h2><small>'+group.length+' notion(s)</small></div><div class="chapter-cards">'+group.map(t=>'<article class="topic-card" data-topic="'+t.id+'" tabindex="0"><div class="topic-meta"><span class="level-pill">'+t.level+'</span><span class="category-pill">'+t.category+'</span></div><h3>'+t.title+'</h3><p>'+t.desc+'</p><div class="topic-card-foot"><span>'+t.duration+' · '+(state.mastered.includes(t.id)?"Maîtrisée":"À découvrir")+'</span><b>↗</b></div></article>').join("")+'</div></section>';
+ }).join("")||'<p class="muted">Aucune notion ne correspond à cette recherche.</p>';
+ $$(".topic-card").forEach(el=>{const open=()=>showTopic(el.dataset.topic);el.addEventListener("click",open);el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}})});
 }
 $$("[data-level]").forEach(b=>b.addEventListener("click",()=>{$$(".filter",$("#levelFilters")).forEach(x=>x.classList.remove("active"));b.classList.add("active");activeLevel=b.dataset.level;renderTopics()}));
 $("#topicSearch").addEventListener("input",renderTopics);
+
+let activeDifficulty="Tous";
+function texFormula(value){const raw=String(value??"");if(!raw)return "";if(raw.includes("\\(")||raw.includes("\\["))return raw;return "\\("+raw+"\\)";}
+function mathText(value){
+ const symbols={"ℝ":"\\mathbb{R}","ℕ":"\\mathbb{N}","ℤ":"\\mathbb{Z}","ℚ":"\\mathbb{Q}","ℂ":"\\mathbb{C}","ε":"\\varepsilon","δ":"\\delta","λ":"\\lambda","μ":"\\mu","π":"\\pi","θ":"\\theta","∀":"\\forall","∃":"\\exists","∈":"\\in","∉":"\\notin","≤":"\\leq","≥":"\\geq","≠":"\\ne","⇒":"\\Rightarrow","⇔":"\\Leftrightarrow","→":"\\to","∑":"\\sum","∫":"\\int","∞":"\\infty","∩":"\\cap","∪":"\\cup","⊂":"\\subset","⊕":"\\oplus","×":"\\times","·":"\\cdot"};
+ return String(value??"").replace(/[ℝℕℤℚℂεδλμπθ∀∃∈∉≤≥≠⇒⇔→∑∫∞∩∪⊂⊕×·]/g,ch=>"\\("+symbols[ch]+"\\)");
+}
+function typesetMath(root){if(!window.MathJax||!window.MathJax.typesetPromise)return;try{window.MathJax.typesetClear?.([root]);window.MathJax.typesetPromise([root]).catch(()=>{});}catch(e){console.warn("MathJax:",e);}}
+function renderExercises(){
+ const q=$("#exerciseSearch").value.toLocaleLowerCase("fr"),topics=new Map(MATH_TOPICS.map(t=>[t.id,t])),rank={"Facile":0,"Intermédiaire":1,"Avancé":2};
+ const items=(window.MATH_EXERCISES||[]).filter(ex=>(activeDifficulty==="Tous"||ex.difficulty===activeDifficulty)).filter(ex=>{const t=topics.get(ex.topic);return (ex.question+" "+(t?.title||ex.topic)+" "+(t?.chapter||"")).toLocaleLowerCase("fr").includes(q);}).sort((a,b)=>(rank[a.difficulty]??9)-(rank[b.difficulty]??9)||a.id-b.id);
+ const groups=[...new Set(items.map(ex=>topics.get(ex.topic)?.chapter||"Exercices complémentaires"))];
+ $("#exerciseList").innerHTML=groups.map(chapter=>{
+  const group=items.filter(ex=>(topics.get(ex.topic)?.chapter||"Exercices complémentaires")===chapter);
+  const cards=group.map(ex=>{const t=topics.get(ex.topic);return '<article class="panel exercise-item"><div class="exercise-meta"><span class="level-pill">'+(t?.level||"L1")+'</span><span class="category-pill">'+(t?.category||"Mathématiques")+'</span><span class="difficulty-pill difficulty-'+(rank[ex.difficulty]??0)+'">'+ex.difficulty+'</span></div><h3>'+(t?.title||"Exercice")+'</h3><p class="exercise-prompt">'+mathText(ex.question)+'</p><div class="exercise-actions"><button class="secondary-btn" data-hint="'+ex.id+'">Afficher un indice</button><button class="secondary-btn" data-answer="'+ex.id+'">Voir la correction</button>'+(t?'<button class="text-action" data-open-topic="'+t.id+'">Ouvrir le cours ↗</button>':"")+'</div><div class="exercise-hint" data-hint-panel="'+ex.id+'" hidden>'+mathText(ex.hint)+'</div><div class="exercise-answer" data-answer-panel="'+ex.id+'" hidden>'+mathText(ex.answer)+'</div></article>';}).join("");
+  return '<section class="exercise-chapter"><div class="chapter-heading"><span class="eyebrow">ENTRAÎNEMENT PAR CHAPITRE</span><h2>'+chapter+'</h2><small>'+group.length+' exercice(s)</small></div><div class="exercise-cards">'+cards+'</div></section>';
+ }).join("")||'<p class="muted">Aucun exercice ne correspond à ces filtres.</p>';
+ $("#exerciseList [data-hint]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-hint-panel="'+b.dataset.hint+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Afficher un indice":"Masquer l'indice";if(!el.hidden)typesetMath(el);}));
+ $("#exerciseList [data-answer]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-answer-panel="'+b.dataset.answer+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Voir la correction":"Masquer la correction";if(!el.hidden)typesetMath(el);}));
+ $("#exerciseList [data-open-topic]").forEach(b=>b.addEventListener("click",()=>showTopic(b.dataset.openTopic)));
+ typesetMath($("#exerciseList"));
+}
+$("#exerciseDifficulty [data-difficulty]").forEach(b=>b.addEventListener("click",()=>{$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
+$("#exerciseSearch").addEventListener("input",renderExercises);
+
 const EXERCISES={
  schmidt:{q:"Dans ℝ², prends v₁=(1,0) et v₂=(1,1). Quelle est la projection de v₂ sur v₁, puis le vecteur orthogonal obtenu ?",a:"⟨v₂,v₁⟩/‖v₁‖²=1, donc projᵥ₁(v₂)=(1,0). Le résidu vaut w₂=(1,1)−(1,0)=(0,1). Les deux vecteurs sont déjà unitaires et orthogonaux."},
  fourier:{q:"Quelle est l'idée de l'approximation de Fourier quand on augmente le nombre d'harmoniques ?",a:"On ajoute des sinus et cosinus de fréquences multiples. La somme partielle contient davantage d'information sur la forme périodique et approche la fonction selon les hypothèses de convergence."},
@@ -79,7 +108,7 @@ determinant:{q:"En dimension 2, |det(A)| représente…",options:["Le facteur de
 
 function showTopic(id){
  const t=MATH_TOPICS.find(x=>x.id===id);if(!t)return;
- $("#topicDetail").innerHTML=`<div class="detail-header"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h1>${t.title}</h1><p>${t.desc}</p></div><div class="detail-content"><article class="panel detail-block"><h3>Définition essentielle</h3><p>${t.definition}</p><div class="math-formula">${t.formula}</div><div id="topicVisualHost" class="topic-visual-host"></div><h3>Comment raisonner ?</h3><p>${t.proof}</p><h3>Points de vigilance</h3><ul>${t.points.map(p=>`<li>${p}</li>`).join("")}</ul></article><aside class="panel detail-block"><h3>Exemple</h3><p>${t.example}</p><div class="callout"><b>Conseil de méthode</b><br>Essaie de reformuler la définition sans regarder, puis démontre un résultat simple qui l'utilise.</div><button class="primary-btn" id="topicCards" style="margin-top:18px;width:100%">Réviser avec les cartes →</button><button class="secondary-btn" id="toggleMastery" style="margin-top:9px;width:100%">${state.mastered.includes(t.id)?"Retirer des notions maîtrisées":"Marquer comme maîtrisée ✓"}</button></aside></div><article class="panel exercise-panel"><span class="eyebrow">PASSER À LA PRATIQUE</span><h2>Vérifie que tu as compris.</h2><p class="muted">Réponds sans regarder le cours, puis affiche la correction détaillée.</p><div class="exercise-question"><b>${(EXERCISES[t.id]||{q:"Reformule la définition avec tes propres mots et donne un exemple."}).q}</b></div><button class="secondary-btn" id="showHint">Voir un indice</button><div class="exercise-hint" id="exerciseHint" hidden>Repars de la définition et identifie les hypothèses à utiliser avant de chercher le résultat.</div><button class="secondary-btn" id="showExercise" style="margin-top:9px">Afficher la correction détaillée</button><div class="exercise-answer" id="exerciseAnswer" hidden>${(EXERCISES[t.id]||{a:"Une bonne réponse doit reprendre les hypothèses, la définition précise et un exemple pertinent."}).a}</div></article><article class="panel exercise-panel quiz-panel"><span class="eyebrow">TEST RAPIDE</span><h2>Vérifie ton raisonnement.</h2><div id="topicQuiz"></div></article>`;
+ $("#topicDetail").innerHTML=`<div class="detail-header"><div class="topic-meta"><span class="level-pill">${t.level}</span><span class="category-pill">${t.category}</span></div><h1>${t.title}</h1><p>${t.desc}</p></div><div class="detail-content"><article class="panel detail-block"><h3>Définition essentielle</h3><p>${mathText(t.definition)}</p><div class="math-formula">${texFormula(t.formula)}</div><div id="topicVisualHost" class="topic-visual-host"></div><h3>Comment raisonner ?</h3><p>${mathText(t.proof)}</p><h3>Points de vigilance</h3><ul>${t.points.map(p=>`<li>${mathText(p)}</li>`).join("")}</ul></article><aside class="panel detail-block"><h3>Exemple</h3><p>${mathText(t.example)}</p><div class="callout"><b>Conseil de méthode</b><br>Essaie de reformuler la définition sans regarder, puis démontre un résultat simple qui l'utilise.</div><button class="primary-btn" id="topicCards" style="margin-top:18px;width:100%">Réviser avec les cartes →</button><button class="secondary-btn" id="toggleMastery" style="margin-top:9px;width:100%">${state.mastered.includes(t.id)?"Retirer des notions maîtrisées":"Marquer comme maîtrisée ✓"}</button></aside></div><article class="panel exercise-panel"><span class="eyebrow">PASSER À LA PRATIQUE</span><h2>Vérifie que tu as compris.</h2><p class="muted">Réponds sans regarder le cours, puis affiche la correction détaillée.</p><div class="exercise-question"><b>${(EXERCISES[t.id]||{q:"Reformule la définition avec tes propres mots et donne un exemple."}).q}</b></div><button class="secondary-btn" id="showHint">Voir un indice</button><div class="exercise-hint" id="exerciseHint" hidden>Repars de la définition et identifie les hypothèses à utiliser avant de chercher le résultat.</div><button class="secondary-btn" id="showExercise" style="margin-top:9px">Afficher la correction détaillée</button><div class="exercise-answer" id="exerciseAnswer" hidden>${(EXERCISES[t.id]||{a:"Une bonne réponse doit reprendre les hypothèses, la définition précise et un exemple pertinent."}).a}</div></article><article class="panel exercise-panel quiz-panel"><span class="eyebrow">TEST RAPIDE</span><h2>Vérifie ton raisonnement.</h2><div id="topicQuiz"></div></article>`;
  const visualMap={
   "suite-limite":["convergence"],
   "continuite":["continuity","limit"],
@@ -138,8 +167,8 @@ $("#dueOnly").addEventListener("click",()=>{dueOnly=!dueOnly;$("#dueOnly").class
 
 function renderRefs(){
  const q=$("#refSearch").value.toLowerCase();const items=MATH_REFERENCES.filter(r=>(activeRefLevel==="Tous"||r.level===activeRefLevel)&&(`${r.title} ${r.body} ${r.cat}`).toLowerCase().includes(q));
- $("#referenceList").innerHTML=items.map((r,i)=>`<article class="ref-item"><div class="ref-head"><span class="ref-symbol">${r.cat==="Analyse"?"ƒ":"A"}</span><strong>${r.title}</strong><span class="level-pill">${r.level}</span><span class="chevron">⌄</span></div><div class="ref-body">${r.body}<br><span class="ref-formula">${r.formula}</span></div></article>`).join("")||'<p class="muted">Aucun résultat.</p>';
- $$(".ref-head").forEach(h=>h.addEventListener("click",()=>h.parentElement.classList.toggle("open")));
+ $("#referenceList").innerHTML=items.map((r,i)=>`<article class="ref-item"><div class="ref-head"><span class="ref-symbol">${r.cat==="Analyse"?"ƒ":"A"}</span><strong>${r.title}</strong><span class="level-pill">${r.level}</span><span class="chevron">⌄</span></div><div class="ref-body">${mathText(r.body)}<br><span class="ref-formula">${texFormula(r.formula)}</span></div></article>`).join("")||'<p class="muted">Aucun résultat.</p>';
+ $(".ref-head").forEach(h=>h.addEventListener("click",()=>{h.parentElement.classList.toggle("open");if(h.parentElement.classList.contains("open"))typesetMath(h.parentElement);}));typesetMath($("#referenceList"));
 }
 $$("[data-reflevel]").forEach(b=>b.addEventListener("click",()=>{$$("#refFilters .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeRefLevel=b.dataset.reflevel;renderRefs()}));
 $("#refSearch").addEventListener("input",renderRefs);
@@ -150,7 +179,7 @@ function renderProgress(){
 }
 $("#addSession").addEventListener("click",()=>{state.sessions++;save();renderProgress()});
 $("#resetProgress").addEventListener("click",()=>{if(confirm("Réinitialiser les notions maîtrisées et les séances enregistrées sur cet appareil ?")){state={mastered:[],sessions:0,seen:[],reviews:{}};save();renderProgress();renderCard()}});
-updateStats();renderTopics();renderCard();renderRefs();renderProgress();
+updateStats();renderTopics();renderExercises();renderCard();renderRefs();renderProgress();
 
 /* Visualisations interactives — chaque modèle possède ses propres paramètres. */
 const canvas=$("#mathCanvas"),ctx=canvas.getContext("2d");
