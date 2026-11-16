@@ -77,18 +77,19 @@ function renderExercises(){
   return '<section class="exercise-chapter"><div class="chapter-heading"><span class="eyebrow">ENTRAÎNEMENT PAR CHAPITRE</span><h2>'+chapter+'</h2><small>'+group.length+' exercice(s)</small></div><div class="exercise-cards">'+cards+'</div></section>';
  }).join("")||'<p class="muted">Aucun exercice ne correspond à ces filtres.</p>';
  $$("#exerciseList [data-hint]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-hint-panel="'+b.dataset.hint+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Afficher un indice":"Masquer l'indice";if(!el.hidden)typesetMath(el);}));
- $$("#exerciseList [data-answer]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-answer-panel="'+b.dataset.answer+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Voir la correction":"Masquer la correction";if(!el.hidden)typesetMath(el);}));
+ $("#exerciseList [data-answer]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-answer-panel="'+b.dataset.answer+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Voir la correction":"Masquer la correction";if(!el.hidden)typesetMath(el);}));
+ $("#exerciseList [data-open-topic]").forEach(button=>button.addEventListener("click",event=>{
+  event.preventDefault();
+  event.stopPropagation();
+  openTopicFromExercise(button.dataset.openTopic);
+ }));
+
  
  typesetMath($("#exerciseList"));
 }
 $$("[data-difficulty]").filter(b=>b.closest("#exerciseDifficulty")).forEach(b=>b.addEventListener("click",()=>{$$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
 $("#exerciseSearch").addEventListener("input",renderExercises);
-document.addEventListener("click",event=>{
- const button=event.target.closest("#exerciseList [data-open-topic]");
- if(!button)return;
- event.preventDefault();
- showTopic(button.dataset.openTopic);
-});
+
 
 const EXERCISES={
  schmidt:{q:"Dans ℝ², prends v₁=(1,0) et v₂=(1,1). Quelle est la projection de v₂ sur v₁, puis le vecteur orthogonal obtenu ?",a:"⟨v₂,v₁⟩/‖v₁‖²=1, donc projᵥ₁(v₂)=(1,0). Le résidu vaut w₂=(1,1)−(1,0)=(0,1). Les deux vecteurs sont déjà unitaires et orthogonaux."},
@@ -160,6 +161,27 @@ function showTopic(id){
  $("#showHint").addEventListener("click",()=>{$("#exerciseHint").hidden=!$("#exerciseHint").hidden;});$("#showExercise").addEventListener("click",()=>{$("#exerciseAnswer").hidden=!$("#exerciseAnswer").hidden;});const quiz=QUIZZES[t.id];$("#topicQuiz").innerHTML=quiz?`<p class="quiz-question">${quiz.q}</p><div class="quiz-options">${quiz.options.map((option,i)=>`<button class="quiz-option" data-choice="${i}">${option}</button>`).join("")}</div><p class="quiz-feedback" id="quizFeedback" hidden></p>`:'<p class="muted">Pour cette notion, entraîne-toi avec la question guidée ci-dessus et vérifie chaque hypothèse de la définition.</p>';$("#topicQuiz [data-choice]").forEach(button=>button.addEventListener("click",()=>{const choice=Number(button.dataset.choice);$("#topicQuiz [data-choice]").forEach((b,i)=>{b.disabled=true;b.classList.toggle("correct",i===quiz.correct);b.classList.toggle("incorrect",i===choice&&choice!==quiz.correct)});const feedback=$("#quizFeedback");feedback.hidden=false;feedback.textContent=(choice===quiz.correct?"Bonne réponse. ":"Pas tout à fait. ")+quiz.why;}));$("#topicCards").addEventListener("click",()=>{activeCategory=t.category;currentCard=MATH_CARDS.findIndex(c=>c.cat===t.category);if(currentCard<0)currentCard=0;go("cards");renderCard()});
  $("#toggleMastery").addEventListener("click",()=>{if(state.mastered.includes(t.id))state.mastered=state.mastered.filter(x=>x!==t.id);else state.mastered.push(t.id);save();showTopic(id);renderTopics()});
  go("topic");
+}
+
+
+function openTopicFromExercise(id){
+ const topic=MATH_TOPICS.find(item=>item.id===id);
+ if(!topic)return;
+ let renderError=null;
+ try{showTopic(id);}catch(error){renderError=error;console.error("Impossible d'afficher la fiche de cours :",error);}
+ const view=$("#view-topic"),detail=$("#topicDetail");
+ if(view){
+  $(".view").forEach(section=>section.classList.toggle("active",section===view));
+  $(".nav-item").forEach(item=>item.classList.toggle("active",item.dataset.view==="learn"));
+  $("#currentSection").textContent="NOTION";
+  $("#sidebar").classList.remove("open");
+ }
+ if(renderError&&detail){
+  const sections=topic.courseSections||[];
+  detail.innerHTML='<div class="detail-header"><span class="eyebrow">COURS · '+topic.level+'</span><h1>'+topic.title+'</h1><p>'+topic.desc+'</p></div><section class="panel course-expansion"><h2>Comprendre en profondeur</h2><p>'+mathText(topic.definition)+'</p><p>'+mathText(topic.proof)+'</p><div class="math-formula">'+texFormula(topic.formula)+'</div>'+sections.map(section=>'<article class="course-section"><h3>'+section.title+'</h3><p>'+mathText(section.body||"")+'</p>'+(section.formula?'<div class="math-formula">'+texFormula(section.formula)+'</div>':'')+'</article>').join('')+'</section>';
+  typesetMath(detail);
+ }
+ window.scrollTo({top:0,behavior:"auto"});
 }
 
 function renderCard(){
