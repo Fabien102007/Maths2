@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="icons/math-logo.svg">
   <meta name="description" content="Maths2 — comprendre, mémoriser et visualiser les mathématiques.">
   <title>Maths2 — Maîtriser les maths</title>
-  <link rel="stylesheet" href="style.css?v=20261115-4">
+  <link rel="stylesheet" href="style.css?v=20261116-1">
 </head>
 <body>
   <div class="app-shell">
@@ -21,6 +21,7 @@
       <nav class="main-nav" aria-label="Navigation principale">
         <button class="nav-item active" data-view="home"><span>⌂</span> Vue d'ensemble</button>
         <button class="nav-item" data-view="learn"><span>▤</span> Apprendre</button>
+        <button class="nav-item" data-view="exercises"><span>✎</span> Exercices</button>
         <button class="nav-item" data-view="cards"><span>◫</span> Flashcards</button>
         <button class="nav-item" data-view="reference"><span>∴</span> Référentiel</button>
         <button class="nav-item" data-view="progress"><span>◔</span> Progression</button>
@@ -83,7 +84,7 @@
         <div id="topicDetail"></div>
       </section>
 
-      <section class="view" id="view-cards">
+      <section class="view" id="view-exercises"><div class="page-intro"><span class="eyebrow">ENTRAÎNEMENT PROGRESSIF</span><h1>Exercices.</h1><p>Des exercices liés aux cours, classés du plus accessible au plus exigeant.</p></div><div class="exercise-toolbar"><div class="filter-group" id="exerciseDifficulty"><button class="filter active" data-difficulty="Tous">Tous</button><button class="filter" data-difficulty="Facile">Facile</button><button class="filter" data-difficulty="Intermédiaire">Intermédiaire</button><button class="filter" data-difficulty="Avancé">Avancé</button></div><label class="searchbox">⌕ <input id="exerciseSearch" type="search" placeholder="Rechercher un chapitre ou un exercice…"></label></div><div class="exercise-list" id="exerciseList"></div></section><section class="view" id="view-cards">
         <div class="page-intro"><span class="eyebrow">MÉMORISATION ACTIVE</span><h1>Flashcards.</h1><p>Essaie de retrouver la réponse avant de retourner la carte. La mémoire se construit par le rappel actif.</p></div>
         <div class="card-controls"><div class="filter-group" id="cardFilters"><button class="filter active" data-cat="Toutes">Toutes</button><button class="filter" data-cat="Analyse">Analyse</button><button class="filter" data-cat="Algèbre">Algèbre</button><button class="filter" id="dueOnly">Révisions à faire</button></div><span class="muted" id="cardCounter"></span></div>
         <div class="flashcard-wrap">
@@ -150,7 +151,9 @@
       window.scrollTo({top:0,behavior:"auto"});
     }, true);
   </script>
-  <script src="data.js?v=20261115-4"></script>
-  <script src="app.js?v=20261115-4"></script>
+  <script>window.MathJax={tex:{inlineMath:[["\\\\(","\\\\)"],["$","$"]],displayMath:[["\\\\[","\\\\]"]]},options:{skipHtmlTags:["script","noscript","style","textarea","pre","code"]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script src="data.js?v=20261116-1"></script>
+  <script src="app.js?v=20261116-1"></script>
 </body>
 </html>
