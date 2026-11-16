@@ -54,3 +54,15 @@
 .math-formula,.ref-formula{overflow-x:auto;max-width:100%}
 @media(max-width:1050px){.chapter-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.chapter-cards,.exercise-cards{grid-template-columns:1fr}.chapter-heading{align-items:flex-start;flex-direction:column;gap:4px}.exercise-actions{display:grid;grid-template-columns:1fr 1fr}.exercise-actions .text-action{grid-column:1/-1;text-align:left}.exercise-item{padding:16px}}
+
+/* Cours détaillés : lecture structurée sur ordinateur et mobile. */
+.course-expansion{margin-top:16px;padding:24px}
+.course-expansion>h2{font:700 21px Manrope;margin:8px 0 20px;color:#dce8f8}
+.course-section{padding:16px 0;border-top:1px solid #293a51}
+.course-section h3{font:700 14px Manrope;color:#c7d9f2;margin:0 0 9px}
+.course-section p{font-size:12px;line-height:1.85;color:#aabbd0;margin:8px 0}
+.course-section .math-formula{margin:12px 0;padding:15px;line-height:1.8}
+.course-example{margin-top:12px;padding:13px 15px;border-left:3px solid #6bd4c8;background:rgba(107,212,200,.07);border-radius:8px}
+.course-example>b{font-size:10px;color:#8ed9c8;letter-spacing:.08em;text-transform:uppercase}
+.course-example p{margin:6px 0 0}
+@media(max-width:700px){.course-expansion{padding:17px}.course-section{padding:13px 0}.course-section p{font-size:12px}}
