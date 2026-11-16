@@ -75,7 +75,7 @@ function renderExercises(){
  $$("#exerciseList [data-open-topic]").forEach(b=>b.addEventListener("click",()=>showTopic(b.dataset.openTopic)));
  typesetMath($("#exerciseList"));
 }
-$("[data-difficulty]").filter(b=>b.closest("#exerciseDifficulty")).forEach(b=>b.addEventListener("click",()=>{$$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
+$$("[data-difficulty]").filter(b=>b.closest("#exerciseDifficulty")).forEach(b=>b.addEventListener("click",()=>{$$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
 $("#exerciseSearch").addEventListener("input",renderExercises);
 
 const EXERCISES={
@@ -169,7 +169,7 @@ $("#dueOnly").addEventListener("click",()=>{dueOnly=!dueOnly;$("#dueOnly").class
 function renderRefs(){
  const q=$("#refSearch").value.toLowerCase();const items=MATH_REFERENCES.filter(r=>(activeRefLevel==="Tous"||r.level===activeRefLevel)&&(`${r.title} ${r.body} ${r.cat}`).toLowerCase().includes(q));
  $("#referenceList").innerHTML=items.map((r,i)=>`<article class="ref-item"><div class="ref-head"><span class="ref-symbol">${r.cat==="Analyse"?"ƒ":"A"}</span><strong>${r.title}</strong><span class="level-pill">${r.level}</span><span class="chevron">⌄</span></div><div class="ref-body">${mathText(r.body)}<br><span class="ref-formula">${texFormula(r.formula)}</span></div></article>`).join("")||'<p class="muted">Aucun résultat.</p>';
- $(".ref-head").forEach(h=>h.addEventListener("click",()=>{h.parentElement.classList.toggle("open");if(h.parentElement.classList.contains("open"))typesetMath(h.parentElement);}));typesetMath($("#referenceList"));
+ $$(".ref-head").forEach(h=>h.addEventListener("click",()=>{h.parentElement.classList.toggle("open");if(h.parentElement.classList.contains("open"))typesetMath(h.parentElement);}));typesetMath($("#referenceList"));
 }
 $$("[data-reflevel]").forEach(b=>b.addEventListener("click",()=>{$$("#refFilters .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeRefLevel=b.dataset.reflevel;renderRefs()}));
 $("#refSearch").addEventListener("input",renderRefs);
