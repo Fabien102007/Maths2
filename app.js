@@ -70,12 +70,12 @@ function renderExercises(){
   const cards=group.map(ex=>{const t=topics.get(ex.topic);return '<article class="panel exercise-item"><div class="exercise-meta"><span class="level-pill">'+(t?.level||"L1")+'</span><span class="category-pill">'+(t?.category||"Mathématiques")+'</span><span class="difficulty-pill difficulty-'+(rank[ex.difficulty]??0)+'">'+ex.difficulty+'</span></div><h3>'+(t?.title||"Exercice")+'</h3><p class="exercise-prompt">'+mathText(ex.question)+'</p><div class="exercise-actions"><button class="secondary-btn" data-hint="'+ex.id+'">Afficher un indice</button><button class="secondary-btn" data-answer="'+ex.id+'">Voir la correction</button>'+(t?'<button class="text-action" data-open-topic="'+t.id+'">Ouvrir le cours ↗</button>':"")+'</div><div class="exercise-hint" data-hint-panel="'+ex.id+'" hidden>'+mathText(ex.hint)+'</div><div class="exercise-answer" data-answer-panel="'+ex.id+'" hidden>'+mathText(ex.answer)+'</div></article>';}).join("");
   return '<section class="exercise-chapter"><div class="chapter-heading"><span class="eyebrow">ENTRAÎNEMENT PAR CHAPITRE</span><h2>'+chapter+'</h2><small>'+group.length+' exercice(s)</small></div><div class="exercise-cards">'+cards+'</div></section>';
  }).join("")||'<p class="muted">Aucun exercice ne correspond à ces filtres.</p>';
- $("#exerciseList [data-hint]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-hint-panel="'+b.dataset.hint+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Afficher un indice":"Masquer l'indice";if(!el.hidden)typesetMath(el);}));
- $("#exerciseList [data-answer]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-answer-panel="'+b.dataset.answer+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Voir la correction":"Masquer la correction";if(!el.hidden)typesetMath(el);}));
- $("#exerciseList [data-open-topic]").forEach(b=>b.addEventListener("click",()=>showTopic(b.dataset.openTopic)));
+ $$("#exerciseList [data-hint]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-hint-panel="'+b.dataset.hint+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Afficher un indice":"Masquer l'indice";if(!el.hidden)typesetMath(el);}));
+ $$("#exerciseList [data-answer]").forEach(b=>b.addEventListener("click",()=>{const el=$('[data-answer-panel="'+b.dataset.answer+'"]');el.hidden=!el.hidden;b.textContent=el.hidden?"Voir la correction":"Masquer la correction";if(!el.hidden)typesetMath(el);}));
+ $$("#exerciseList [data-open-topic]").forEach(b=>b.addEventListener("click",()=>showTopic(b.dataset.openTopic)));
  typesetMath($("#exerciseList"));
 }
-$("#exerciseDifficulty [data-difficulty]").forEach(b=>b.addEventListener("click",()=>{$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
+$("#exerciseDifficulty [data-difficulty]").forEach(b=>b.addEventListener("click",()=>{$$("#exerciseDifficulty .filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeDifficulty=b.dataset.difficulty;renderExercises();}));
 $("#exerciseSearch").addEventListener("input",renderExercises);
 
 const EXERCISES={
